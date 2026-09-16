@@ -19,9 +19,7 @@ export function Home() {
       <section className="hero">
         <img src="/images/hero.jpg" alt="A family walking through tall grass at golden hour" />
         <div className="hero-copy">
-          <p className="kicker" style={{ color: "rgba(251,246,238,0.8)" }}>
-            {SERVICE_AREA}
-          </p>
+          <p className="kicker hero-kicker">{SERVICE_AREA}</p>
           <h1>True Family Photography</h1>
           <p className="lede">
             Two photographers, an eight-year-old with a camera, and the guy who makes sure the batteries
