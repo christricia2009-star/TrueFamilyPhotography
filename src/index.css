@@ -394,15 +394,15 @@ h3,
 .photo-mark em {
   font-family: var(--script);
   font-style: normal;
-  font-size: clamp(1.15rem, 2.1vw, 1.65rem);
+  font-size: clamp(1.05rem, 1.8vw, 1.45rem);
   line-height: 1;
 }
 
 .photo-mark span {
-  font-size: 0.62rem;
-  letter-spacing: 0.06em;
+  font-size: clamp(0.7rem, 1.1vw, 0.86rem);
+  letter-spacing: 0.02em;
   text-transform: lowercase;
-  color: rgba(255, 248, 238, 0.78);
+  color: rgba(255, 248, 238, 0.86);
 }
 
 .photo-studio {
