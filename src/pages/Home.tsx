@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Photo } from "../components/Photo";
-import { ThisWeek } from "../components/ThisWeek";
 import { currentThing, photographers, SERVICE_AREA } from "../data/studio";
 
 const featured = [
@@ -55,8 +54,6 @@ export function Home() {
           </Link>
         </div>
       </section>
-
-      <ThisWeek />
 
       <section className="section">
         <div className="wrap intro-grid">

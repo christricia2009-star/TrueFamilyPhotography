@@ -81,7 +81,7 @@ export function Shop() {
           <h1>Chris has the order.</h1>
           <p>
             {payError ||
-              "It is on the family desk and in the studio inbox. If Stripe is connected, you were sent to pay. Prints ship after we confirm the frame from your gallery."}
+              "We have the order. If Stripe is connected, you were sent to pay. Prints ship after we confirm the frame from your gallery."}
           </p>
           {done.gifts.length > 0 && (
             <div className="note" style={{ marginTop: 18 }}>

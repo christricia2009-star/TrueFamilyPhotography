@@ -86,9 +86,6 @@ export function Layout() {
               <Link to="/shop">The shop</Link>
               <Link to="/galleries">Open a paid gallery</Link>
               <a href={`mailto:${STUDIO_EMAIL}`}>{STUDIO_EMAIL}</a>
-              <Link to="/studio" style={{ opacity: 0.55 }}>
-                Family desk
-              </Link>
             </div>
           </div>
         </div>
