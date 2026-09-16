@@ -1,7 +1,8 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { bookablePhotographers, getPhotographer, sessionsFor } from "../data/studio";
-import { saveBooking } from "../lib/storage";
+import { emailStudio } from "../lib/email";
+import { findGift, isDateHeld, listHeldDates, redeemGift, saveBooking } from "../lib/storage";
 
 export function Book() {
   const { id } = useParams();
@@ -10,15 +11,33 @@ export function Book() {
     preset?.bookable ? preset.id : bookablePhotographers[0].id,
   );
   const [sessionType, setSessionType] = useState("");
+  const [date, setDate] = useState("");
+  const [giftCode, setGiftCode] = useState("");
   const [sent, setSent] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const person = getPhotographer(photographerId);
   const sessions = useMemo(() => (person ? sessionsFor(person) : []), [person]);
+  const holdsDates = person?.id === "patricia" || person?.id === "skylar";
+  const dateTaken = Boolean(person && date && isDateHeld(person.id, date));
+  const held = person ? listHeldDates().filter((d) => d.photographerId === person.id) : [];
+  const gift = giftCode ? findGift(giftCode) : undefined;
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
     if (!person) return;
+    if (dateTaken) {
+      setError("That date is already held for this photographer. Pick another.");
+      return;
+    }
+    if (giftCode && (!gift || gift.remaining <= 0)) {
+      setError("That gift code is not open. Check the envelope.");
+      return;
+    }
+    setBusy(true);
+    const data = new FormData(e.currentTarget);
+    if (gift && gift.remaining > 0) redeemGift(gift.code);
     const booking = saveBooking({
       photographerId: person.id,
       sessionType: String(data.get("sessionType") || sessions[0]?.id || ""),
@@ -29,7 +48,22 @@ export function Book() {
       phone: String(data.get("phone") || ""),
       partySize: String(data.get("partySize") || ""),
       message: String(data.get("message") || ""),
+      giftCode: gift?.code,
     });
+    await emailStudio({
+      _subject: `Booking · ${person.name} · ${booking.date}`,
+      photographer: person.credit,
+      session: booking.sessionType,
+      date: booking.date,
+      location: booking.location,
+      name: booking.name,
+      email: booking.email,
+      phone: booking.phone,
+      party: booking.partySize,
+      gift: booking.giftCode || "none",
+      message: booking.message,
+    });
+    setBusy(false);
     setSent(booking.id);
   }
 
@@ -40,8 +74,9 @@ export function Book() {
           <p className="kicker">Request received</p>
           <h1>We’ll write back.</h1>
           <p>
-            {person.name} is on it — well, {person.kind === "junior" ? "the family studio is on it, with Phoenix" : person.name}{" "}
-            and Chris will see the request on the family desk. You’ll hear from us at the email you left.
+            {person.kind === "junior" ? "The family studio is on it, with Phoenix" : person.name} — and
+            Chris just got the email. The date is held for Patricia and Skylar so nobody else can take
+            that sunset.
           </p>
           <Link to={`/photographers/${person.id}`} className="btn" style={{ marginTop: 28 }}>
             Back to {person.handle}
@@ -59,8 +94,7 @@ export function Book() {
           <h1>Pick a photographer.</h1>
           <p>
             Patricia for families and formals. Skylar for sports and cars. Phoenix for Little Lens
-            adventures (parent along). Chris will see the request too — he just won’t be the one holding
-            the camera.
+            adventures (parent along). Chris gets the email. He will not be the one holding the camera.
           </p>
         </div>
 
@@ -73,6 +107,7 @@ export function Book() {
               onClick={() => {
                 setPhotographerId(p.id);
                 setSessionType("");
+                setError("");
               }}
             >
               <span className="handle">{p.handle}</span>
@@ -102,8 +137,26 @@ export function Book() {
             </label>
             <label>
               Preferred date
-              <input type="date" name="date" required />
+              <input
+                type="date"
+                name="date"
+                required
+                value={date}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setError("");
+                }}
+              />
             </label>
+            {holdsDates && (
+              <p className={dateTaken ? "error" : "note"}>
+                {dateTaken
+                  ? "That Saturday is taken. Patricia and Skylar hold dates so two families do not get the same light."
+                  : held.length
+                    ? `Already held: ${held.map((d) => d.date).join(", ")}`
+                    : "Patricia and Skylar hold the date once you send this, so nobody else can book that sunset."}
+              </p>
+            )}
             <label>
               Where
               <input name="location" placeholder="City, park, field, backyard…" required />
@@ -125,11 +178,24 @@ export function Book() {
               <input name="partySize" placeholder="e.g. 5" />
             </label>
             <label>
+              Gift certificate
+              <input
+                name="gift"
+                placeholder="TFP-GIFT-————"
+                value={giftCode}
+                onChange={(e) => setGiftCode(e.target.value.toUpperCase())}
+              />
+            </label>
+            {gift && gift.remaining > 0 && (
+              <p className="note">Code is open · ${gift.remaining} · we will mark it redeemed with this request.</p>
+            )}
+            <label>
               Anything we should know
               <textarea name="message" placeholder="Kickoff time, ages, the dog’s name…" />
             </label>
-            <button className="btn" type="submit">
-              Send to the studio
+            {error && <p className="error">{error}</p>}
+            <button className="btn" type="submit" disabled={busy || dateTaken}>
+              {busy ? "Sending…" : "Send to the studio"}
             </button>
           </form>
         )}

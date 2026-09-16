@@ -3,8 +3,9 @@ import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { Lightbox } from "../components/Lightbox";
 import { Photo } from "../components/Photo";
 import { QrCard } from "../components/QrCard";
+import { Slideshow } from "../components/Slideshow";
 import { findGalleryByCode, getGallery, getPhotographer } from "../data/studio";
-import { isUnlocked, unlockGallery } from "../lib/storage";
+import { isFavorite, isUnlocked, listFavorites, toggleFavorite, unlockGallery } from "../lib/storage";
 
 export function Gallery() {
   const { id } = useParams();
@@ -14,6 +15,9 @@ export function Gallery() {
   const [unlocked, setUnlocked] = useState(false);
   const [error, setError] = useState("");
   const [open, setOpen] = useState<number | null>(null);
+  const [play, setPlay] = useState(false);
+  const [playIndex, setPlayIndex] = useState(0);
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     if (!gallery) return;
@@ -46,6 +50,8 @@ export function Gallery() {
     setUnlocked(true);
     setError("");
   }
+
+  const hearts = listFavorites(gallery.id);
 
   if (!unlocked) {
     return (
@@ -85,20 +91,54 @@ export function Gallery() {
             <p className="kicker">{photographer.handle} · unlocked</p>
             <h1>{gallery.title}</h1>
             <p>
-              {gallery.subtitle} · {gallery.dateLabel}. Save the QR so family can open this album later.
+              {gallery.subtitle} · {gallery.dateLabel}. Heart the frames you want on the wall. Play the
+              album. Save the QR for family.
             </p>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setPlayIndex(open ?? 0);
+                  setPlay(true);
+                }}
+              >
+                Play the album
+              </button>
+              <Link to="/shop" className="btn ghost">
+                Order prints · {hearts.length} hearts
+              </Link>
+            </div>
           </div>
           {shareUrl && <QrCard value={shareUrl} caption={gallery.code} />}
         </div>
         <div className="masonry">
           {gallery.photos.map((photo, i) => (
-            <Photo
-              key={photo.src}
-              src={photo.src}
-              alt={photo.alt}
-              photographer={photographer}
-              onClick={() => setOpen(i)}
-            />
+            <div key={photo.src} className="heart-shot">
+              <Photo
+                src={photo.src}
+                alt={photo.alt}
+                photographer={photographer}
+                onClick={() => setOpen(i)}
+              />
+              <button
+                type="button"
+                className={`heart-btn ${isFavorite(gallery.id, photo.src) ? "is-on" : ""}`}
+                aria-label="Favorite"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite({
+                    galleryId: gallery.id,
+                    src: photo.src,
+                    alt: photo.alt,
+                    photographerId: photographer.id,
+                  });
+                  setTick((n) => n + 1);
+                }}
+              >
+                ♥
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -109,6 +149,15 @@ export function Gallery() {
           photographer={photographer}
           onClose={() => setOpen(null)}
           onIndex={setOpen}
+        />
+      )}
+      {play && (
+        <Slideshow
+          photos={gallery.photos}
+          index={playIndex}
+          photographer={photographer}
+          onClose={() => setPlay(false)}
+          onIndex={setPlayIndex}
         />
       )}
     </section>

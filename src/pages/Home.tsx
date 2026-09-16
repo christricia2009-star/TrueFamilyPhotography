@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Photo } from "../components/Photo";
-import { photographers, SERVICE_AREA } from "../data/studio";
+import { currentThing, photographers, SERVICE_AREA } from "../data/studio";
 
 const featured = [
   { src: "/images/patricia/p07.jpg", alt: "Child in autumn leaves", id: "patricia" },
@@ -34,6 +34,19 @@ export function Home() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="now-bar">
+        <div className="wrap now-inner">
+          <div>
+            <p className="kicker">{currentThing.kicker}</p>
+            <h2>{currentThing.title}</h2>
+            <p>{currentThing.blurb}</p>
+          </div>
+          <Link to={currentThing.href} className="btn">
+            Color with Phoenix
+          </Link>
         </div>
       </section>
 

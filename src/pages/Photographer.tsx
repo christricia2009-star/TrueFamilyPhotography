@@ -1,8 +1,14 @@
 import { useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
+import { BatteryMeter } from "../components/BatteryMeter";
+import { ColoringStudio } from "../components/ColoringStudio";
+import { ComicStrip } from "../components/ComicStrip";
+import { FieldNotebook } from "../components/FieldNotebook";
+import { KickoffCountdown } from "../components/KickoffCountdown";
 import { Lightbox } from "../components/Lightbox";
 import { Photo } from "../components/Photo";
 import { getPhotographer, sessionsFor, type Photo as PhotoType } from "../data/studio";
+import { listPolaroids } from "../lib/storage";
 
 export function Photographer() {
   const { id } = useParams();
@@ -55,6 +61,11 @@ export function Photographer() {
               <Link to={`/book/${person.id}`} className="btn" style={{ marginTop: 28 }}>
                 Book {person.name}
               </Link>
+            )}
+            {person.id === "skylar" && (
+              <div style={{ marginTop: 36 }}>
+                <KickoffCountdown />
+              </div>
             )}
           </div>
         </div>
@@ -114,6 +125,9 @@ function ChrisPage() {
             </p>
             <p className="chris-aside">{chris.tagline}</p>
             <p style={{ marginTop: 18, color: "var(--ink-soft)", maxWidth: "46ch" }}>{chris.bio}</p>
+            <div style={{ margin: "28px 0" }}>
+              <BatteryMeter />
+            </div>
             <ul className="duty-list">
               {chris.duties?.map((item) => (
                 <li key={item}>{item}</li>
@@ -136,6 +150,7 @@ function ChrisPage() {
 
 function PhoenixPage() {
   const phoenix = getPhotographer("phoenix")!;
+  const polaroids = listPolaroids();
   return (
     <div className="phoenix-page">
       <section className="page-hero">
@@ -175,17 +190,20 @@ function PhoenixPage() {
           </div>
         </div>
       </section>
+      <ComicStrip />
+      <ColoringStudio />
+      <FieldNotebook />
       <section className="section">
         <div className="wrap">
-          <h2>The wall of photos (coming soon)</h2>
+          <h2>The wall of photos</h2>
           <p style={{ fontFamily: "Fredoka, sans-serif", marginTop: 8 }}>
-            This is where the pictures will go. After more recesses. After snack.
+            Empty frames fill when the family desk drops a picture in. Until then: after more recesses. After snack.
           </p>
           <div className="empty-wall">
-            {["look at the bug", "the dog said yes", "kids being kids"].map((caption) => (
-              <figure key={caption} className="polaroid">
-                <div className="slot">photo goes here someday</div>
-                <figcaption>{caption}</figcaption>
+            {polaroids.map((slot) => (
+              <figure key={slot.id} className="polaroid">
+                {slot.src ? <img src={slot.src} alt={slot.caption} /> : <div className="slot">photo goes here someday</div>}
+                <figcaption>{slot.caption}</figcaption>
               </figure>
             ))}
           </div>

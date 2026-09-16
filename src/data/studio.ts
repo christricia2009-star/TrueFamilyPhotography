@@ -43,7 +43,7 @@ export const STUDIO_HANDLE = "truefamilyphotography";
 export function watermarkFor(person: { id: string }) {
   return `${person.id}@truefamilyphotography`;
 }
-export const STUDIO_PIN = "TFP-FAMILY";
+export const STUDIO_PIN = "8288824";
 export const STUDIO_EMAIL = "hello@truefamilyphotography.com";
 export const SERVICE_AREA = "Northern California — and wherever the story lives.";
 
@@ -220,3 +220,124 @@ export function sessionsFor(photographer: Photographer) {
 }
 
 export const bookablePhotographers = photographers.filter((p) => p.bookable);
+
+export const currentThing = {
+  kicker: "Right now",
+  title: "Phoenix has a coloring studio up.",
+  blurb: "Bugs, boots, a tippy horizon. Color in the browser, print for the fridge, watermark included.",
+  href: "/photographers/phoenix#coloring",
+};
+
+export const nextKickoff = {
+  title: "Friday night lights",
+  team: "Mavericks",
+  when: "2026-09-18T19:00:00-07:00",
+  blurb: "Skylar will be on the sideline. Book him before the lights come on.",
+};
+
+export const fieldNoteItems = [
+  { id: "bug", label: "A bug that stayed still" },
+  { id: "dog", label: "A dog nose, very close" },
+  { id: "yellow", label: "Something yellow" },
+  { id: "puddle", label: "A puddle worth stopping for" },
+  { id: "sky", label: "A sky that is not straight (that’s fine)" },
+  { id: "snack", label: "Evidence of snack" },
+];
+
+export const comicPanels = [
+  {
+    title: "The grown-up way",
+    line: "Smile! Look at the camera. One more. Chin up. Don’t blink.",
+    stamp: "Patricia, trying her best",
+  },
+  {
+    title: "The Phoenix way",
+    line: "Look at the bug. The bug is not looking at the camera. Perfect.",
+    stamp: "Age 8",
+  },
+  {
+    title: "Parent along",
+    line: "A grown-up photographer always comes. Phoenix notices. Chris packed the batteries.",
+    stamp: "Studio rule",
+  },
+  {
+    title: "Then snack",
+    line: "Little Lens adventures are short on purpose. Recess energy. Parent in the shot if needed.",
+    stamp: "30–45 minutes",
+  },
+];
+
+export type ShopProduct = {
+  id: string;
+  name: string;
+  blurb: string;
+  image: string;
+  photographerId?: string;
+  gift?: boolean;
+  variants: { id: string; label: string; price: number }[];
+};
+
+export const shopProducts: ShopProduct[] = [
+  {
+    id: "gift",
+    name: "Gift certificate",
+    blurb: "A code they redeem when they book. Same studio, their photographer.",
+    image: "/images/portrait-phoenix.jpg",
+    gift: true,
+    variants: [
+      { id: "150", label: "$150", price: 150 },
+      { id: "300", label: "$300", price: 300 },
+      { id: "500", label: "$500", price: 500 },
+    ],
+  },
+  {
+    id: "print",
+    name: "Fine art print",
+    blurb: "From your paid gallery. Tell us the frame in the note at checkout.",
+    image: "/images/patricia/p07.jpg",
+    photographerId: "patricia",
+    variants: [
+      { id: "8x10", label: "8×10", price: 45 },
+      { id: "11x14", label: "11×14", price: 75 },
+      { id: "16x20", label: "16×20", price: 140 },
+    ],
+  },
+  {
+    id: "canvas",
+    name: "Canvas",
+    blurb: "A wall piece. We print from the album you unlocked.",
+    image: "/images/patricia/p03.jpg",
+    photographerId: "patricia",
+    variants: [
+      { id: "16x20c", label: "16×20 canvas", price: 220 },
+      { id: "20x30c", label: "20×30 canvas", price: 320 },
+    ],
+  },
+  {
+    id: "album",
+    name: "Heirloom album",
+    blurb: "Flush-mount, designed from your favorites. Chris will ask which hearts you tapped.",
+    image: "/images/patricia/p08.jpg",
+    variants: [{ id: "album", label: "Starting collection", price: 450 }],
+  },
+  {
+    id: "digital",
+    name: "Extra digitals",
+    blurb: "Additional high-res files from a session already on the books.",
+    image: "/images/skylar/sport01.jpg",
+    photographerId: "skylar",
+    variants: [{ id: "set", label: "Add-on set", price: 50 }],
+  },
+  {
+    id: "coloring-set",
+    name: "Little Lens coloring set",
+    blurb: "Printed pages from Phoenix’s coloring studio. Fridge-ready. Her watermark on every sheet.",
+    image: "/images/portrait-phoenix.jpg",
+    photographerId: "phoenix",
+    variants: [{ id: "pack", label: "5-page pack", price: 18 }],
+  },
+];
+
+export function formatMoney(n: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+}

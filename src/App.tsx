@@ -7,6 +7,7 @@ import { Photographer } from "./pages/Photographer";
 import { Book } from "./pages/Book";
 import { Galleries } from "./pages/Galleries";
 import { Gallery } from "./pages/Gallery";
+import { Shop } from "./pages/Shop";
 import { Studio } from "./pages/Studio";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/book/:id" element={<Book />} />
         <Route path="/galleries" element={<Galleries />} />
         <Route path="/galleries/:id" element={<Gallery />} />
+        <Route path="/shop" element={<Shop />} />
         <Route path="/studio" element={<Studio />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

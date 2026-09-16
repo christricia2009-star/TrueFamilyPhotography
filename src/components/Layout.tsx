@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { photographers, STUDIO_EMAIL, STUDIO_NAME } from "../data/studio";
+import { cartCount } from "../lib/storage";
 
 export function Layout() {
   const { pathname } = useLocation();
   const isHome = pathname === "/";
   const [solid, setSolid] = useState(!isHome);
   const [open, setOpen] = useState(false);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     setOpen(false);
@@ -24,6 +26,13 @@ export function Layout() {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHome]);
 
+  useEffect(() => {
+    const sync = () => setCount(cartCount());
+    sync();
+    window.addEventListener("tfp-cart", sync);
+    return () => window.removeEventListener("tfp-cart", sync);
+  }, [pathname]);
+
   return (
     <>
       <header className={`site-header ${isHome ? "is-hero" : "is-inner"} ${solid ? "is-solid" : ""}`}>
@@ -39,6 +48,7 @@ export function Layout() {
         <nav className={`nav-links ${open ? "is-open" : ""}`}>
           <NavLink to="/photographers">Photographers</NavLink>
           <NavLink to="/galleries">Client galleries</NavLink>
+          <NavLink to="/shop">Shop{count ? ` (${count})` : ""}</NavLink>
           <NavLink to="/about">The family</NavLink>
           <Link to="/book" className="nav-cta">
             Book a session
@@ -73,6 +83,7 @@ export function Layout() {
             <p className="kicker">Visit</p>
             <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
               <Link to="/book">Book a photographer</Link>
+              <Link to="/shop">The shop</Link>
               <Link to="/galleries">Open a paid gallery</Link>
               <a href={`mailto:${STUDIO_EMAIL}`}>{STUDIO_EMAIL}</a>
               <Link to="/studio" style={{ opacity: 0.55 }}>
