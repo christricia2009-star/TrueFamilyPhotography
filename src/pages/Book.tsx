@@ -1,17 +1,21 @@
-import { FormEvent, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
+import { agreementBody, agreementTitle } from "../data/agreement";
 import { bookablePhotographers, getPhotographer, sessionsFor } from "../data/studio";
 import { emailStudio } from "../lib/email";
 import { findGift, isDateHeld, listHeldDates, redeemGift, saveBooking } from "../lib/storage";
 
 export function Book() {
   const { id } = useParams();
+  const [params] = useSearchParams();
   const preset = id ? getPhotographer(id) : undefined;
   const [photographerId, setPhotographerId] = useState(
     preset?.bookable ? preset.id : bookablePhotographers[0].id,
   );
-  const [sessionType, setSessionType] = useState("");
-  const [date, setDate] = useState("");
+  const [sessionType, setSessionType] = useState(params.get("session") || "");
+  const [date, setDate] = useState(params.get("date") || "");
+  const [agreed, setAgreed] = useState(false);
+  const [showLegal, setShowLegal] = useState(false);
   const [giftCode, setGiftCode] = useState("");
   const [sent, setSent] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -23,6 +27,14 @@ export function Book() {
   const dateTaken = Boolean(person && date && isDateHeld(person.id, date));
   const held = person ? listHeldDates().filter((d) => d.photographerId === person.id) : [];
   const gift = giftCode ? findGift(giftCode) : undefined;
+  const year = (sessionType || sessions[0]?.id) === "year";
+
+  useEffect(() => {
+    const d = params.get("date");
+    const s = params.get("session");
+    if (d) setDate(d);
+    if (s) setSessionType(s);
+  }, [params]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,6 +45,10 @@ export function Book() {
     }
     if (giftCode && (!gift || gift.remaining <= 0)) {
       setError("That gift code is not open. Check the envelope.");
+      return;
+    }
+    if (!agreed) {
+      setError("The session agreement has to be checked. It is how the studio stays a real business.");
       return;
     }
     setBusy(true);
@@ -193,10 +209,35 @@ export function Book() {
               Anything we should know
               <textarea name="message" placeholder="Kickoff time, ages, the dog’s name…" />
             </label>
+            {year && (
+              <p className="note">
+                Year of the family: tell us spring, first day of school, and a birthday in the note. Patricia
+                keeps the year, not just the Saturday.
+              </p>
+            )}
+            <label className="agree">
+              <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
+              <span>
+                I agree to the{" "}
+                <button type="button" className="text-link" onClick={() => setShowLegal(true)}>
+                  session agreement
+                </button>{" "}
+                with True Family Photography.
+              </span>
+            </label>
             {error && <p className="error">{error}</p>}
-            <button className="btn" type="submit" disabled={busy || dateTaken}>
+            <button className="btn" type="submit" disabled={busy || dateTaken || !agreed}>
               {busy ? "Sending…" : "Send to the studio"}
             </button>
+            {showLegal && (
+              <div className="legal-box">
+                <h3>{agreementTitle}</h3>
+                <p style={{ whiteSpace: "pre-wrap" }}>{agreementBody}</p>
+                <button type="button" className="btn ghost" onClick={() => setShowLegal(false)}>
+                  Close
+                </button>
+              </div>
+            )}
           </form>
         )}
       </div>

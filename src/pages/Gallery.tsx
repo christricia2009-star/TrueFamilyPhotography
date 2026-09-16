@@ -3,8 +3,12 @@ import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { Lightbox } from "../components/Lightbox";
 import { Photo } from "../components/Photo";
 import { QrCard } from "../components/QrCard";
+import { Reveal } from "../components/Reveal";
 import { Slideshow } from "../components/Slideshow";
+import { WallPreview } from "../components/WallPreview";
 import { findGalleryByCode, getGallery, getPhotographer } from "../data/studio";
+import { downloadAlbum, downloadPhoto } from "../lib/download";
+import { toLineArt } from "../lib/lineArt";
 import { isFavorite, isUnlocked, listFavorites, toggleFavorite, unlockGallery } from "../lib/storage";
 
 export function Gallery() {
@@ -17,17 +21,25 @@ export function Gallery() {
   const [open, setOpen] = useState<number | null>(null);
   const [play, setPlay] = useState(false);
   const [playIndex, setPlayIndex] = useState(0);
+  const [reveal, setReveal] = useState(false);
+  const [wall, setWall] = useState(false);
+  const [line, setLine] = useState<string | null>(null);
+  const [busy, setBusy] = useState("");
   const [, setTick] = useState(0);
 
   useEffect(() => {
     if (!gallery) return;
     const fromQuery = params.get("code");
-    if (fromQuery && fromQuery.trim().toUpperCase() === gallery.code) {
-      unlockGallery(gallery.id);
-      setUnlocked(true);
+    const ok =
+      (fromQuery && fromQuery.trim().toUpperCase() === gallery.code) || isUnlocked(gallery.id);
+    if (!ok) {
+      setUnlocked(false);
       return;
     }
-    setUnlocked(isUnlocked(gallery.id));
+    if (fromQuery && fromQuery.trim().toUpperCase() === gallery.code) unlockGallery(gallery.id);
+    const seen = sessionStorage.getItem(`tfp-reveal-${gallery.id}`);
+    if (!seen) setReveal(true);
+    setUnlocked(true);
   }, [gallery, params]);
 
   const shareUrl = useMemo(() => {
@@ -47,11 +59,29 @@ export function Gallery() {
       return;
     }
     unlockGallery(gallery.id);
+    sessionStorage.removeItem(`tfp-reveal-${gallery.id}`);
+    setReveal(true);
     setUnlocked(true);
     setError("");
   }
 
   const hearts = listFavorites(gallery.id);
+
+  async function zip() {
+    if (!gallery) return;
+    setBusy("zip");
+    await downloadAlbum(gallery.photos, gallery.id);
+    setBusy("");
+  }
+
+  async function phoenixPage(src: string) {
+    setBusy("art");
+    try {
+      setLine(await toLineArt(src));
+    } finally {
+      setBusy("");
+    }
+  }
 
   if (!unlocked) {
     return (
@@ -60,8 +90,8 @@ export function Gallery() {
           <p className="kicker">{photographer.handle}</p>
           <h1>{gallery.title}</h1>
           <p>
-            {gallery.subtitle} · {gallery.dateLabel}. Enter the access code from your session, or scan the
-            QR on the card we sent.
+            {gallery.subtitle} · {gallery.dateLabel}. Enter the access code. The first look comes before
+            the grid.
           </p>
           <div className="lock-preview">
             {gallery.photos.slice(0, 3).map((p) => (
@@ -85,14 +115,25 @@ export function Gallery() {
 
   return (
     <section className="section" style={{ paddingTop: 140 }}>
+      {reveal && (
+        <Reveal
+          photos={gallery.photos}
+          photographer={photographer}
+          title={gallery.title}
+          onDone={() => {
+            sessionStorage.setItem(`tfp-reveal-${gallery.id}`, "1");
+            setReveal(false);
+          }}
+        />
+      )}
       <div className="wrap">
         <div className="page-hero gallery-head" style={{ paddingTop: 0 }}>
           <div>
             <p className="kicker">{photographer.handle} · unlocked</p>
             <h1>{gallery.title}</h1>
             <p>
-              {gallery.subtitle} · {gallery.dateLabel}. Heart the frames you want on the wall. Play the
-              album. Save the QR for family.
+              Heart the frames for the wall. Download the files you paid for. Phoenix can turn a heart
+              into a coloring page.
             </p>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
               <button
@@ -105,9 +146,15 @@ export function Gallery() {
               >
                 Play the album
               </button>
-              <Link to="/shop" className="btn ghost">
-                Order prints · {hearts.length} hearts
-              </Link>
+              <button type="button" className="btn ghost" onClick={() => setReveal(true)}>
+                Play the reveal
+              </button>
+              <button type="button" className="btn ghost" onClick={() => setWall(true)} disabled={!hearts.length}>
+                On the wall · {hearts.length}
+              </button>
+              <button type="button" className="btn ghost" onClick={zip} disabled={busy === "zip"}>
+                {busy === "zip" ? "Packing…" : "Download album"}
+              </button>
             </div>
           </div>
           {shareUrl && <QrCard value={shareUrl} caption={gallery.code} />}
@@ -138,6 +185,17 @@ export function Gallery() {
               >
                 ♥
               </button>
+              <div className="shot-actions">
+                <button
+                  type="button"
+                  onClick={() => downloadPhoto(photo.src, `${gallery.id}-${i + 1}.jpg`)}
+                >
+                  File
+                </button>
+                <button type="button" onClick={() => phoenixPage(photo.src)} disabled={busy === "art"}>
+                  Phoenix page
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -159,6 +217,27 @@ export function Gallery() {
           onClose={() => setPlay(false)}
           onIndex={setPlayIndex}
         />
+      )}
+      {wall && <WallPreview hearts={hearts} onClose={() => setWall(false)} />}
+      {line && (
+        <div className="wall-modal" role="dialog">
+          <button type="button" className="lightbox-close" onClick={() => setLine(null)}>
+            ×
+          </button>
+          <div className="line-art-card">
+            <p className="kicker">Little Lens gift</p>
+            <h2>Color their picture.</h2>
+            <img src={line} alt="Line art coloring page" />
+            <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+              <a className="btn" href={line} download="phoenix-coloring.png">
+                Save page
+              </a>
+              <Link to="/photographers/phoenix#coloring" className="btn ghost">
+                More coloring
+              </Link>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

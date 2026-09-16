@@ -7,23 +7,28 @@ import { FieldNotebook } from "../components/FieldNotebook";
 import { KickoffCountdown } from "../components/KickoffCountdown";
 import { Lightbox } from "../components/Lightbox";
 import { Photo } from "../components/Photo";
+import { SeasonCalendar } from "../components/SeasonCalendar";
 import { getPhotographer, sessionsFor, type Photo as PhotoType } from "../data/studio";
+import { listLibrary } from "../lib/library";
 import { listPolaroids } from "../lib/storage";
 
 export function Photographer() {
   const { id } = useParams();
   const person = id ? getPhotographer(id) : undefined;
   const [open, setOpen] = useState<number | null>(null);
-  const albums = useMemo(() => {
+  const allPhotos = useMemo(() => {
     if (!person) return [];
+    return [...person.photos, ...listLibrary(person.id)];
+  }, [person]);
+  const albums = useMemo(() => {
     const map = new Map<string, PhotoType[]>();
-    for (const photo of person.photos) {
+    for (const photo of allPhotos) {
       const list = map.get(photo.album) ?? [];
       list.push(photo);
       map.set(photo.album, list);
     }
     return [...map.entries()];
-  }, [person]);
+  }, [allPhotos]);
 
   if (!person) return <Navigate to="/photographers" replace />;
 
@@ -63,8 +68,9 @@ export function Photographer() {
               </Link>
             )}
             {person.id === "skylar" && (
-              <div style={{ marginTop: 36 }}>
+              <div style={{ marginTop: 36, display: "grid", gap: 18 }}>
                 <KickoffCountdown />
+                <SeasonCalendar />
               </div>
             )}
           </div>
@@ -76,7 +82,7 @@ export function Photographer() {
               <h3>{album}</h3>
               <div className="album-grid">
                 {photos.map((photo) => {
-                  const index = person.photos.findIndex((p) => p.src === photo.src);
+                  const index = allPhotos.findIndex((p) => p.src === photo.src);
                   return (
                     <Photo
                       key={photo.src}
@@ -94,7 +100,7 @@ export function Photographer() {
       </div>
       {open !== null && (
         <Lightbox
-          photos={person.photos}
+          photos={allPhotos}
           index={open}
           photographer={person}
           onClose={() => setOpen(null)}

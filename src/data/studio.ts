@@ -60,7 +60,7 @@ export const photographers: Photographer[] = [
     portrait: "/images/patricia/p07.jpg",
     portraitAlt: "Child portrait in autumn leaves, photographed by Patricia",
     specialties: ["Families", "Maternity", "Newborns", "Formals", "Weddings"],
-    sessionTypes: ["family", "maternity", "newborn", "wedding", "portrait"],
+    sessionTypes: ["family", "year", "maternity", "newborn", "wedding", "portrait"],
     bookable: true,
     photos: [
       { src: "/images/patricia/p07.jpg", alt: "A child sitting in autumn leaves", album: "Families" },
@@ -156,6 +156,7 @@ export const photographers: Photographer[] = [
 
 export const sessionCatalog: { id: string; label: string; blurb: string }[] = [
   { id: "family", label: "Family & lifestyle", blurb: "The year you are actually living." },
+  { id: "year", label: "Year of the family", blurb: "Spring, first day, birthday. Patricia keeps you." },
   { id: "wedding", label: "Weddings & formals", blurb: "Vows, gowns, the arbor." },
   { id: "maternity", label: "Maternity", blurb: "The quiet before." },
   { id: "newborn", label: "Newborn", blurb: "First days, small hands." },
@@ -234,6 +235,15 @@ export const nextKickoff = {
   when: "2026-09-18T19:00:00-07:00",
   blurb: "Skylar will be on the sideline. Book him before the lights come on.",
 };
+
+export const seasonGames = [
+  { id: "g1", when: "2026-09-18T19:00:00-07:00", opponent: "Ridge", home: true },
+  { id: "g2", when: "2026-09-25T19:00:00-07:00", opponent: "Valley", home: true },
+  { id: "g3", when: "2026-10-02T19:00:00-07:00", opponent: "North", home: false },
+  { id: "g4", when: "2026-10-09T19:00:00-07:00", opponent: "West", home: true },
+  { id: "g5", when: "2026-10-16T19:00:00-07:00", opponent: "Central", home: false },
+  { id: "g6", when: "2026-10-23T19:00:00-07:00", opponent: "East", home: true },
+];
 
 export const fieldNoteItems = [
   { id: "bug", label: "A bug that stayed still" },

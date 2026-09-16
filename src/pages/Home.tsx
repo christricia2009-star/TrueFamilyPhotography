@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Photo } from "../components/Photo";
+import { ThisWeek } from "../components/ThisWeek";
 import { currentThing, photographers, SERVICE_AREA } from "../data/studio";
 
 const featured = [
@@ -17,7 +18,14 @@ export function Home() {
   return (
     <>
       <section className="hero">
-        <img src="/images/hero.jpg" alt="A family walking through tall grass at golden hour" />
+        <img
+          src="/images/hero.jpg"
+          alt="A butterfly on a purple flower, photographed for True Family Photography"
+          width={1320}
+          height={1316}
+          fetchPriority="high"
+          decoding="async"
+        />
         <div className="hero-copy">
           <p className="kicker hero-kicker">{SERVICE_AREA}</p>
           <h1>True Family Photography</h1>
@@ -47,6 +55,8 @@ export function Home() {
           </Link>
         </div>
       </section>
+
+      <ThisWeek />
 
       <section className="section">
         <div className="wrap intro-grid">

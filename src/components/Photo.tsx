@@ -8,15 +8,26 @@ type Props = {
   locked?: boolean;
   className?: string;
   onClick?: () => void;
+  eager?: boolean;
+  width?: number;
+  height?: number;
 };
 
-export function Photo({ src, alt, photographer, locked, className, onClick }: Props) {
+export function Photo({ src, alt, photographer, locked, className, onClick, eager, width, height }: Props) {
   const mark = photographer ? watermarkFor(photographer) : "";
   const at = mark.indexOf("@");
 
   return (
     <figure className={`photo ${className ?? ""}`} onClick={onClick} role={onClick ? "button" : undefined}>
-      <img src={src} alt={alt} className={locked ? "is-locked" : undefined} />
+      <img
+        src={src}
+        alt={alt}
+        className={locked ? "is-locked" : undefined}
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        width={width}
+        height={height}
+      />
       {photographer && (
         <figcaption className="photo-credit">
           <span className="photo-mark">

@@ -1,7 +1,8 @@
 import { FormEvent, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { formatMoney, shopProducts } from "../data/studio";
 import { emailStudio } from "../lib/email";
+import { startStripeCheckout } from "../lib/stripe";
 import {
   addToCart,
   cartTotal,
@@ -14,8 +15,12 @@ import {
 } from "../lib/storage";
 
 export function Shop() {
+  const [params] = useSearchParams();
   const [cart, setCart] = useState(getCart);
-  const [done, setDone] = useState<{ orderId: string; gifts: string[] } | null>(null);
+  const [done, setDone] = useState<{ orderId: string; gifts: string[] } | null>(
+    params.get("paid") === "1" ? { orderId: "stripe", gifts: [] } : null,
+  );
+  const [payError, setPayError] = useState("");
   const total = useMemo(() => cart.reduce((n, i) => n + i.price * i.qty, 0), [cart]);
 
   function refresh() {
@@ -61,6 +66,9 @@ export function Shop() {
       gifts: giftCodes.join(", "),
       note: String(data.get("note") || ""),
     });
+    const striped = await startStripeCheckout(items, { name, email, note: String(data.get("note") || "") });
+    if (striped) return;
+    setPayError("Stripe is not live yet on this host — Chris has the order on the family desk.");
     clearCart();
     setDone({ orderId: order.id, gifts: giftCodes });
   }
@@ -71,7 +79,10 @@ export function Shop() {
         <div className="wrap confirm">
           <p className="kicker">The shop</p>
           <h1>Chris has the order.</h1>
-          <p>It is on the family desk and in the studio inbox. Prints ship after we confirm the frame from your gallery.</p>
+          <p>
+            {payError ||
+              "It is on the family desk and in the studio inbox. If Stripe is connected, you were sent to pay. Prints ship after we confirm the frame from your gallery."}
+          </p>
           {done.gifts.length > 0 && (
             <div className="note" style={{ marginTop: 18 }}>
               Gift codes (hand these over):

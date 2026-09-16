@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { QrCard } from "../components/QrCard";
-import { clientGalleries, getPhotographer, STUDIO_PIN, watermarkFor } from "../data/studio";
+import { clientGalleries, getPhotographer, photographers, STUDIO_PIN, watermarkFor } from "../data/studio";
+import { addLibraryPhoto, listLibrary, removeLibraryPhoto } from "../lib/library";
 import {
   clearPolaroid,
   defaultPolaroids,
@@ -238,6 +239,49 @@ export function Studio() {
             </tbody>
           </table>
         )}
+
+        <h2 style={{ margin: "48px 0 12px" }}>Portfolio drop</h2>
+        <p className="note">Add Patricia or Skylar work without touching code. It shows on their page.</p>
+        <label>
+          Photographer
+          <select
+            id="lib-person"
+            defaultValue="patricia"
+            onChange={() => setTick((n) => n + 1)}
+          >
+            {photographers
+              .filter((p) => p.kind === "photographer")
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+          </select>
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={async (e) => {
+            const who = (document.getElementById("lib-person") as HTMLSelectElement)?.value || "patricia";
+            const files = [...(e.target.files ?? [])];
+            for (const file of files) await addLibraryPhoto(who, file);
+            setTick((n) => n + 1);
+            e.currentTarget.value = "";
+          }}
+        />
+        <div className="album-grid" style={{ marginTop: 16 }}>
+          {listLibrary().map((p) => (
+            <figure key={p.id} className="photo">
+              <img src={p.src} alt={p.alt} />
+              <figcaption className="photo-credit">
+                <button type="button" className="btn ghost" onClick={() => { removeLibraryPhoto(p.id); setTick((n) => n + 1); }}>
+                  Remove
+                </button>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
 
         <h2 style={{ margin: "48px 0 12px" }}>Phoenix’s wall</h2>
         <p className="note">Drop a photo into a polaroid. It shows on her page. Captions stay hers.</p>
