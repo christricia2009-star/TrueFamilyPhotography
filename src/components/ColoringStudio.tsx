@@ -1,27 +1,36 @@
-import { useRef, useState } from "react";
+import { PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
 const CRAYONS = [
-  "#e23e6b",
-  "#ff8fab",
-  "#ffb347",
-  "#ffe08a",
-  "#b5f2c0",
-  "#1aa6c4",
-  "#7ad7f0",
-  "#c9b6ff",
-  "#6b5748",
-  "#1f1814",
-  "#fbf6ee",
-  "#d4a574",
+  { hex: "#e23e6b", name: "Punch" },
+  { hex: "#ff8fab", name: "Bubblegum" },
+  { hex: "#ffb347", name: "Pop" },
+  { hex: "#ffe08a", name: "Butter" },
+  { hex: "#b5f2c0", name: "Grass" },
+  { hex: "#1aa6c4", name: "Pool" },
+  { hex: "#7ad7f0", name: "Ice" },
+  { hex: "#c9b6ff", name: "Grape" },
+  { hex: "#6b5748", name: "Mud" },
+  { hex: "#1f1814", name: "Night" },
+  { hex: "#fbf6ee", name: "Paper" },
+  { hex: "#d4a574", name: "Honey" },
 ];
 
-type Page = {
-  id: string;
-  title: string;
-  hint: string;
-};
+const SIZES = [
+  { id: "skinny", n: 10, label: "skinny" },
+  { id: "regular", n: 22, label: "regular" },
+  { id: "chunky", n: 42, label: "chunky" },
+] as const;
 
-const PAGES: Page[] = [
+type Tool = "draw" | "fill" | "erase";
+type Stroke = {
+  color: string;
+  size: number;
+  erase: boolean;
+  points: { x: number; y: number }[];
+};
+type Hist = { kind: "stroke" } | { kind: "fill"; prev: Record<string, string> };
+
+const PAGES = [
   { id: "bug", title: "Look at the bug", hint: "He is not looking at the camera. Perfect." },
   { id: "dog", title: "The dog said yes", hint: "Very close. Slightly wet." },
   { id: "boots", title: "Yellow boots", hint: "Puddle optional. Splash not optional." },
@@ -31,90 +40,253 @@ const PAGES: Page[] = [
 
 export function ColoringStudio() {
   const [page, setPage] = useState(PAGES[0].id);
-  const [color, setColor] = useState(CRAYONS[0]);
+  const [color, setColor] = useState(CRAYONS[0].hex);
+  const [tool, setTool] = useState<Tool>("draw");
+  const [sizeId, setSizeId] = useState<(typeof SIZES)[number]["id"]>("regular");
   const [fills, setFills] = useState<Record<string, Record<string, string>>>({});
-  const stage = useRef<HTMLDivElement>(null);
+  const [strokes, setStrokes] = useState<Record<string, Stroke[]>>({});
+  const [hist, setHist] = useState<Record<string, Hist[]>>({});
+  const paper = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const drawing = useRef<Stroke | null>(null);
   const current = PAGES.find((p) => p.id === page)!;
+  const crayon = CRAYONS.find((c) => c.hex === color) ?? CRAYONS[0];
+  const size = SIZES.find((s) => s.id === sizeId) ?? SIZES[1];
   const map = fills[page] ?? {};
 
+  const redraw = useCallback(() => {
+    const cv = canvas.current;
+    const box = paper.current;
+    if (!cv || !box) return;
+    const rect = box.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (rect.width < 8) return;
+    cv.width = Math.round(rect.width * dpr);
+    cv.height = Math.round(rect.height * dpr);
+    cv.style.width = `${rect.width}px`;
+    cv.style.height = `${rect.height}px`;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (const stroke of strokes[page] ?? []) drawStroke(ctx, stroke, cv.width, cv.height);
+    if (drawing.current) drawStroke(ctx, drawing.current, cv.width, cv.height);
+  }, [page, strokes]);
+
+  useEffect(() => {
+    redraw();
+    const box = paper.current;
+    if (!box) return;
+    const ro = new ResizeObserver(() => redraw());
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [redraw]);
+
   function paint(id: string) {
-    setFills((prev) => ({
-      ...prev,
-      [page]: { ...(prev[page] ?? {}), [id]: color },
-    }));
+    if (tool !== "fill") return;
+    const prev = { ...(fills[page] ?? {}) };
+    setFills((s) => ({ ...s, [page]: { ...prev, [id]: color } }));
+    setHist((s) => ({ ...s, [page]: [...(s[page] ?? []), { kind: "fill", prev }] }));
   }
 
   function fill(id: string, fallback = "#fffdf8") {
     return map[id] ?? fallback;
   }
 
+  function pointFrom(e: PointerEvent<HTMLCanvasElement>) {
+    const cv = canvas.current;
+    if (!cv) return null;
+    const r = cv.getBoundingClientRect();
+    return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+  }
+
+  function onDown(e: PointerEvent<HTMLCanvasElement>) {
+    if (tool === "fill") return;
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const p = pointFrom(e);
+    if (!p) return;
+    drawing.current = {
+      color,
+      size: size.n,
+      erase: tool === "erase",
+      points: [p],
+    };
+    redraw();
+  }
+
+  function onMove(e: PointerEvent<HTMLCanvasElement>) {
+    if (!drawing.current) return;
+    const p = pointFrom(e);
+    if (!p) return;
+    drawing.current.points.push(p);
+    redraw();
+  }
+
+  function onUp() {
+    const stroke = drawing.current;
+    drawing.current = null;
+    if (!stroke || stroke.points.length === 0) return;
+    setStrokes((s) => ({ ...s, [page]: [...(s[page] ?? []), stroke] }));
+    setHist((s) => ({ ...s, [page]: [...(s[page] ?? []), { kind: "stroke" }] }));
+  }
+
+  function undo() {
+    const stack = hist[page] ?? [];
+    const last = stack[stack.length - 1];
+    if (!last) return;
+    setHist((s) => ({ ...s, [page]: stack.slice(0, -1) }));
+    if (last.kind === "stroke") {
+      setStrokes((s) => ({ ...s, [page]: (s[page] ?? []).slice(0, -1) }));
+    } else {
+      setFills((s) => ({ ...s, [page]: last.prev }));
+    }
+  }
+
+  function startOver() {
+    setFills((s) => ({ ...s, [page]: {} }));
+    setStrokes((s) => ({ ...s, [page]: [] }));
+    setHist((s) => ({ ...s, [page]: [] }));
+  }
+
   async function savePng() {
-    const svg = stage.current?.querySelector("svg");
-    if (!svg) return;
+    const svg = paper.current?.querySelector("svg");
+    const cv = canvas.current;
+    if (!svg || !cv) return;
     const clone = svg.cloneNode(true) as SVGSVGElement;
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     const xml = new XMLSerializer().serializeToString(clone);
-    const blob = new Blob([xml], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml;charset=utf-8" }));
     const img = new Image();
     img.src = url;
     await new Promise((res) => {
       img.onload = res;
     });
-    const canvas = document.createElement("canvas");
-    canvas.width = 1400;
-    canvas.height = 1400;
-    const ctx = canvas.getContext("2d");
+    const out = document.createElement("canvas");
+    out.width = 1400;
+    out.height = 1400;
+    const ctx = out.getContext("2d");
     if (!ctx) return;
     ctx.fillStyle = "#fffdf8";
     ctx.fillRect(0, 0, 1400, 1400);
     ctx.drawImage(img, 0, 0, 1400, 1400);
-    ctx.fillStyle = "rgba(31,24,20,0.55)";
-    ctx.font = "italic 42px Georgia";
+    ctx.drawImage(cv, 0, 0, 1400, 1400);
+    ctx.fillStyle = "rgba(31,24,20,0.6)";
+    ctx.font = "italic 40px Georgia";
     ctx.textAlign = "right";
     ctx.fillText("phoenix@truefamilyphotography", 1360, 1360);
     const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
+    a.href = out.toDataURL("image/png");
     a.download = `phoenix-${page}.png`;
     a.click();
     URL.revokeObjectURL(url);
   }
+
+  function printPage() {
+    document.body.classList.add("print-coloring");
+    window.print();
+    window.setTimeout(() => document.body.classList.remove("print-coloring"), 400);
+  }
+
+  const how =
+    tool === "fill"
+      ? "Dump: tap a shape. The whole puddle turns Punch. Or Grass. Your call."
+      : tool === "erase"
+        ? "Erase: scribble the oops away. Undo is there if you go too far."
+        : "Scribble: pick a crayon and color like you would on paper. Stay in the lines. Or don’t.";
 
   return (
     <section className="section tight" id="coloring">
       <div className="wrap">
         <p className="kicker">Little Lens coloring studio</p>
         <h2>Color this. The horizon can be tippy.</h2>
-        <p className="coloring-lead">
-          Click a crayon, then click a shape. Print it for the fridge. Every page is marked
-          phoenix@truefamilyphotography — same as the real pictures, someday.
-        </p>
-        <div className="page-tabs">
+        <ol className="coloring-how">
+          <li>Pick a crayon.</li>
+          <li>Scribble, or dump the bucket on a shape.</li>
+          <li>Save it for the fridge.</li>
+        </ol>
+        <div className="page-tabs" role="tablist" aria-label="Coloring pages">
           {PAGES.map((p) => (
-            <button key={p.id} className={p.id === page ? "is-on" : ""} type="button" onClick={() => setPage(p.id)}>
+            <button
+              key={p.id}
+              type="button"
+              role="tab"
+              aria-selected={p.id === page}
+              className={p.id === page ? "is-on" : ""}
+              onClick={() => setPage(p.id)}
+            >
               {p.title}
             </button>
           ))}
         </div>
+
+        <div className="coloring-tools">
+          <button type="button" className={tool === "draw" ? "is-on" : ""} onClick={() => setTool("draw")}>
+            Scribble
+          </button>
+          <button type="button" className={tool === "fill" ? "is-on" : ""} onClick={() => setTool("fill")}>
+            Dump
+          </button>
+          <button type="button" className={tool === "erase" ? "is-on" : ""} onClick={() => setTool("erase")}>
+            Erase
+          </button>
+          <span className="tool-gap" />
+          {SIZES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`size-btn ${sizeId === s.id ? "is-on" : ""}`}
+              onClick={() => setSizeId(s.id)}
+              aria-label={s.label}
+            >
+              <i style={{ width: 6 + s.n / 4, height: 6 + s.n / 4 }} />
+              {s.label}
+            </button>
+          ))}
+          <button type="button" onClick={undo} disabled={!(hist[page] ?? []).length}>
+            Oops
+          </button>
+        </div>
+        <p className="coloring-live">{how}</p>
+
         <div className="coloring-board">
           <div className="crayon-box" role="listbox" aria-label="Crayons">
             {CRAYONS.map((c) => (
               <button
-                key={c}
+                key={c.hex}
                 type="button"
-                className={`crayon ${color === c ? "is-on" : ""}`}
-                style={{ background: c }}
-                aria-label={c}
-                onClick={() => setColor(c)}
-              />
+                className={`crayon-stick ${color === c.hex ? "is-on" : ""}`}
+                style={{ background: c.hex, color: c.hex === "#fbf6ee" || c.hex === "#ffe08a" ? "#2b1d3a" : "#fff" }}
+                aria-label={c.name}
+                title={c.name}
+                onClick={() => {
+                  setColor(c.hex);
+                  if (tool === "erase") setTool("draw");
+                }}
+              >
+                <span>{c.name}</span>
+              </button>
             ))}
           </div>
-          <div className="coloring-stage" ref={stage}>
-            {page === "bug" && <BugPage fill={fill} paint={paint} />}
-            {page === "dog" && <DogPage fill={fill} paint={paint} />}
-            {page === "boots" && <BootsPage fill={fill} paint={paint} />}
-            {page === "camera" && <CameraPage fill={fill} paint={paint} />}
-            {page === "horizon" && <HorizonPage fill={fill} paint={paint} />}
+          <div className={`coloring-stage coloring-print tool-${tool}`}>
+            <p className="using-crayon">
+              Using <em style={{ color: crayon.hex }}>{crayon.name}</em>
+              {tool === "fill" ? " · dump" : tool === "erase" ? " · eraser" : ` · ${size.label}`}
+            </p>
+            <div className="coloring-paper" ref={paper}>
+              {page === "bug" && <BugPage fill={fill} paint={paint} />}
+              {page === "dog" && <DogPage fill={fill} paint={paint} />}
+              {page === "boots" && <BootsPage fill={fill} paint={paint} />}
+              {page === "camera" && <CameraPage fill={fill} paint={paint} />}
+              {page === "horizon" && <HorizonPage fill={fill} paint={paint} />}
+              <canvas
+                ref={canvas}
+                className={`color-draw ${tool === "fill" ? "is-pass" : ""}`}
+                onPointerDown={onDown}
+                onPointerMove={onMove}
+                onPointerUp={onUp}
+                onPointerCancel={onUp}
+              />
+            </div>
             <p className="coloring-hint">{current.hint}</p>
             <p className="coloring-mark">phoenix@truefamilyphotography</p>
           </div>
@@ -123,20 +295,46 @@ export function ColoringStudio() {
           <button type="button" className="btn" style={{ background: "#e23e6b" }} onClick={savePng}>
             Save for the fridge
           </button>
-          <button type="button" className="btn ghost" onClick={() => window.print()}>
-            Print
+          <button type="button" className="btn ghost" onClick={printPage}>
+            Print just this page
           </button>
-          <button
-            type="button"
-            className="btn ghost"
-            onClick={() => setFills((prev) => ({ ...prev, [page]: {} }))}
-          >
-            Start over
+          <button type="button" className="btn ghost" onClick={startOver}>
+            Start this page over
           </button>
         </div>
       </div>
     </section>
   );
+}
+
+function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke, w: number, h: number) {
+  const pts = stroke.points;
+  if (!pts.length) return;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = Math.max(4, stroke.size * (w / 420));
+  if (stroke.erase) {
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.strokeStyle = "#000";
+    ctx.fillStyle = "#000";
+  } else {
+    ctx.globalCompositeOperation = "source-over";
+    ctx.strokeStyle = stroke.color;
+    ctx.fillStyle = stroke.color;
+    ctx.globalAlpha = 0.9;
+  }
+  if (pts.length === 1) {
+    ctx.beginPath();
+    ctx.arc(pts[0].x * w, pts[0].y * h, ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x * w, pts[0].y * h);
+    for (let i = 1; i < pts.length; i += 1) ctx.lineTo(pts[i].x * w, pts[i].y * h);
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 type PaintProps = {

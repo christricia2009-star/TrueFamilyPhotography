@@ -916,6 +916,16 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .profile {
+    gap: 22px;
+  }
+
+  .profile .portrait {
+    position: static;
+    top: auto;
+    max-width: 300px;
+  }
+
   .masonry {
     columns: 1;
   }
@@ -1151,56 +1161,109 @@ textarea:focus {
   flex-shrink: 0;
 }
 
-.coloring-lead {
+.coloring-lead,
+.coloring-live {
   font-family: "Fredoka", sans-serif;
-  margin: 8px 0 20px;
-  max-width: 48ch;
+  margin: 8px 0 16px;
+  max-width: 52ch;
+}
+
+.coloring-how {
+  font-family: "Fredoka", sans-serif;
+  margin: 10px 0 18px;
+  padding-left: 1.2em;
+  display: grid;
+  gap: 4px;
 }
 
 .page-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
-.page-tabs button {
+.page-tabs button,
+.coloring-tools button {
   border: 2px solid #2b1d3a;
   background: #fff;
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-family: "Fredoka", sans-serif;
   cursor: pointer;
   border-radius: 999px;
+  min-height: 44px;
 }
 
-.page-tabs button.is-on {
+.page-tabs button.is-on,
+.coloring-tools button.is-on {
   background: #2b1d3a;
   color: #fff;
 }
 
+.coloring-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.coloring-tools .tool-gap {
+  width: 8px;
+}
+
+.coloring-tools button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.size-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.size-btn i {
+  display: block;
+  background: currentColor;
+  border-radius: 50%;
+}
+
 .coloring-board {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 92px 1fr;
   gap: 16px;
   align-items: start;
 }
 
 .crayon-box {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-.crayon {
-  width: 28px;
-  height: 28px;
+.crayon-stick {
+  height: 54px;
   border: 2px solid #2b1d3a;
-  border-radius: 999px;
+  border-radius: 6px 6px 14px 14px;
   cursor: pointer;
+  transform: rotate(-6deg);
+  font-family: "Fredoka", sans-serif;
+  font-size: 0.68rem;
+  text-align: center;
+  padding: 4px 2px 8px;
+  line-height: 1.1;
 }
 
-.crayon.is-on {
-  outline: 3px solid #e23e6b;
-  outline-offset: 2px;
+.crayon-stick.is-on {
+  transform: rotate(-6deg) translateY(-8px);
+  box-shadow: 4px 6px 0 #2b1d3a;
+}
+
+.crayon-stick span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.04em;
 }
 
 .coloring-stage {
@@ -1211,16 +1274,56 @@ textarea:focus {
   position: relative;
 }
 
+.using-crayon {
+  font-family: "Fredoka", sans-serif;
+  padding: 4px 8px 8px;
+}
+
+.using-crayon em {
+  font-style: normal;
+  font-weight: 600;
+}
+
+.coloring-paper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #fffdf8;
+  touch-action: none;
+}
+
 .color-svg {
   width: 100%;
-  height: auto;
-  cursor: pointer;
+  height: 100%;
+  display: block;
+}
+
+.tool-fill .color-svg {
+  cursor: cell;
+}
+
+.color-draw {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.color-draw.is-pass {
+  pointer-events: none;
+}
+
+.tool-erase .color-draw {
+  cursor: cell;
 }
 
 .coloring-hint,
 .coloring-mark {
   font-family: "Fredoka", sans-serif;
-  padding: 0 8px;
+  padding: 8px 8px 0;
 }
 
 .coloring-mark {
@@ -1234,6 +1337,22 @@ textarea:focus {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 16px;
+}
+
+@media print {
+  body.print-coloring * {
+    visibility: hidden !important;
+  }
+  body.print-coloring .coloring-print,
+  body.print-coloring .coloring-print * {
+    visibility: visible !important;
+  }
+  body.print-coloring .coloring-print {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    box-shadow: none;
+  }
 }
 
 .notebook {
@@ -1504,7 +1623,19 @@ textarea:focus {
   }
 
   .crayon-box {
-    grid-auto-flow: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .crayon-stick {
+    width: 56px;
+    height: 76px;
+    transform: none;
+  }
+
+  .crayon-stick.is-on {
+    transform: translateY(-6px);
   }
 }
 
