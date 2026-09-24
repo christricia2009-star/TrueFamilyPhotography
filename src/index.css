@@ -12,7 +12,7 @@
   --sans: "Outfit", system-ui, sans-serif;
   --script: "Great Vibes", cursive;
   --max: 1180px;
-  --banner-h: 42px;
+  --banner-h: 72px;
 }
 
 * {
@@ -106,8 +106,8 @@ h3,
   padding: 0 16px;
   background: var(--ink);
   color: var(--paper);
-  font-size: clamp(0.58rem, 2.15vw, 0.76rem);
-  letter-spacing: 0.14em;
+  font-size: clamp(0.82rem, 1.8vw, 1.28rem);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   font-weight: 500;
 }
@@ -303,8 +303,8 @@ main {
 
 .hero {
   position: relative;
-  min-height: calc(100vh - var(--banner-h));
-  min-height: calc(100dvh - var(--banner-h));
+  min-height: calc(90vh - var(--banner-h));
+  min-height: calc(90dvh - var(--banner-h));
   display: grid;
   place-items: end stretch;
   color: #fbf6ee;
@@ -330,13 +330,14 @@ main {
 .hero-copy {
   position: relative;
   z-index: 1;
-  padding: 0 40px 72px;
-  width: min(1100px, 100%);
+  padding: 0 16px 64px;
+  width: 100%;
 }
 
 .hero h1 {
-  font-size: clamp(3.4rem, 9vw, 7.4rem);
-  max-width: 12ch;
+  font-size: clamp(1.85rem, 6vw, 8rem);
+  max-width: none;
+  white-space: nowrap;
   color: #fbf6ee;
   text-shadow: 0 2px 22px rgba(0, 0, 0, 0.45);
 }
@@ -1037,9 +1038,13 @@ textarea:focus {
   }
 
   .promo-banner {
-    letter-spacing: 0.06em;
-    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
     gap: 8px;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.15rem, 6.2vw, 2.6rem);
   }
 
   .hero::after {
@@ -1094,13 +1099,20 @@ textarea:focus {
     columns: 1;
   }
 
-  .hero-copy,
   .wrap {
     width: min(100% - 32px, var(--max));
   }
 
   .hero-copy {
-    padding: 0 0 56px;
+    width: 100%;
+    padding: 0 12px 56px;
+  }
+
+  @media (max-width: 380px) {
+    .promo-banner {
+      letter-spacing: 0.03em;
+      font-size: 0.6rem;
+    }
   }
 
   .section {
