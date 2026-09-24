@@ -12,6 +12,7 @@
   --sans: "Outfit", system-ui, sans-serif;
   --script: "Great Vibes", cursive;
   --max: 1180px;
+  --banner-h: 42px;
 }
 
 * {
@@ -91,9 +92,62 @@ h3,
   margin-inline: auto;
 }
 
+.promo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 41;
+  height: var(--banner-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: clamp(0.58rem, 2.15vw, 0.76rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.promo-copy {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.promo-handle,
+.promo-arrow {
+  color: var(--gold);
+  letter-spacing: 0.08em;
+}
+
+.promo-arrow {
+  flex: none;
+  letter-spacing: 0;
+}
+
+.promo-banner:hover {
+  background: #2c241f;
+}
+
+.promo-banner:hover .promo-handle,
+.promo-banner:hover .promo-arrow {
+  color: #e6d0a4;
+}
+
+main {
+  padding-top: var(--banner-h);
+}
+
 .site-header {
   position: fixed;
-  inset: 0 0 auto;
+  top: var(--banner-h);
+  left: 0;
+  right: 0;
   z-index: 40;
   display: flex;
   align-items: center;
@@ -111,7 +165,8 @@ h3,
 }
 
 .site-header.is-hero:not(.is-solid) .wordmark,
-.site-header.is-hero:not(.is-solid) .nav-links a:not(.nav-cta) {
+.site-header.is-hero:not(.is-solid) .nav-links a:not(.nav-cta),
+.site-header.is-hero:not(.is-solid) .social-links {
   color: #fbf6ee;
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
 }
@@ -155,6 +210,39 @@ h3,
 
 .nav-links a:hover {
   color: var(--gold-deep);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.social-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+}
+
+.social-links a:hover {
+  color: var(--gold-deep);
+}
+
+.social-links svg {
+  width: 18px;
+  height: 18px;
+}
+
+.nav-social {
+  display: none;
 }
 
 .nav-cta,
@@ -215,7 +303,8 @@ h3,
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--banner-h));
+  min-height: calc(100dvh - var(--banner-h));
   display: grid;
   place-items: end stretch;
   color: #fbf6ee;
@@ -519,7 +608,7 @@ h3,
 
 .profile .portrait {
   position: sticky;
-  top: 96px;
+  top: calc(96px + var(--banner-h));
 }
 
 .profile .portrait .photo {
@@ -882,6 +971,33 @@ textarea:focus {
 }
 
 @media (max-width: 760px) {
+  .site-header {
+    padding: 14px 14px;
+  }
+
+  .wordmark strong {
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .header-social {
+    display: none;
+  }
+
+  .nav-social {
+    display: block;
+    padding-top: 4px;
+  }
+
+  .social-links a {
+    width: 34px;
+    height: 34px;
+  }
+
   .menu-toggle {
     display: block;
   }
@@ -913,10 +1029,17 @@ textarea:focus {
 
   .site-header.is-hero:not(.is-solid) .wordmark,
   .site-header.is-hero:not(.is-solid) .menu-toggle,
+  .site-header.is-hero:not(.is-solid) .social-links,
   .site-header.is-hero:not(.is-solid) .nav-links,
   .site-header.is-hero:not(.is-solid) .nav-links a:not(.nav-cta) {
     color: var(--ink);
     text-shadow: none;
+  }
+
+  .promo-banner {
+    letter-spacing: 0.06em;
+    font-size: 0.58rem;
+    gap: 8px;
   }
 
   .hero::after {
@@ -1880,6 +2003,7 @@ textarea:focus {
 }
 
 @media print {
+  .promo-banner,
   .site-header,
   .site-footer,
   .no-print,
@@ -1901,6 +2025,10 @@ textarea:focus {
 
   body {
     background: #fff;
+  }
+
+  main {
+    padding-top: 0;
   }
 }
 

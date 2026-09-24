@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { photographers, STUDIO_EMAIL, STUDIO_NAME } from "../data/studio";
+import {
+  FACEBOOK_URL,
+  INSTAGRAM_URL,
+  photographers,
+  SPORTING_EVENTS_URL,
+  STUDIO_EMAIL,
+  STUDIO_NAME,
+} from "../data/studio";
 import { cartCount } from "../lib/storage";
 
 export function Layout() {
@@ -35,25 +42,41 @@ export function Layout() {
 
   return (
     <>
+      <a className="promo-banner" href={SPORTING_EVENTS_URL}>
+        <span className="promo-copy">
+          Sporting Events by <span className="promo-handle">@truefamilyphotography</span>
+        </span>
+        <span className="promo-arrow" aria-hidden="true">
+          →
+        </span>
+      </a>
       <header className={`site-header ${isHome ? "is-hero" : "is-inner"} ${solid ? "is-solid" : ""}`}>
         <Link to="/" className="wordmark" onClick={() => setOpen(false)}>
           <strong>True Family</strong>
           <span>Photography</span>
         </Link>
-        <button className="menu-toggle" aria-label="Menu" onClick={() => setOpen((v) => !v)}>
-          <span />
-          <span />
-          <span />
-        </button>
-        <nav className={`nav-links ${open ? "is-open" : ""}`}>
-          <NavLink to="/photographers">Photographers</NavLink>
-          <NavLink to="/galleries">Client galleries</NavLink>
-          <NavLink to="/shop">Shop{count ? ` (${count})` : ""}</NavLink>
-          <NavLink to="/about">The family</NavLink>
-          <Link to="/book" className="nav-cta">
-            Book a session
-          </Link>
-        </nav>
+        <div className="header-actions">
+          <nav className={`nav-links ${open ? "is-open" : ""}`}>
+            <NavLink to="/photographers">Photographers</NavLink>
+            <NavLink to="/galleries">Client galleries</NavLink>
+            <NavLink to="/shop">Shop{count ? ` (${count})` : ""}</NavLink>
+            <NavLink to="/about">The family</NavLink>
+            <Link to="/book" className="nav-cta">
+              Book a session
+            </Link>
+            <div className="nav-social">
+              <SocialLinks />
+            </div>
+          </nav>
+          <div className="header-social">
+            <SocialLinks />
+          </div>
+          <button className="menu-toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
       </header>
       <main>
         <Outlet />
@@ -86,11 +109,51 @@ export function Layout() {
               <Link to="/shop">The shop</Link>
               <Link to="/galleries">Open a paid gallery</Link>
               <a href={`mailto:${STUDIO_EMAIL}`}>{STUDIO_EMAIL}</a>
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
+                Instagram
+              </a>
+              <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer">
+                Facebook
+              </a>
             </div>
           </div>
         </div>
         <div className="wrap legal">© {new Date().getFullYear()} True Family Photography · All sessions billed to the studio</div>
       </footer>
     </>
+  );
+}
+
+function SocialLinks() {
+  return (
+    <div className="social-links">
+      <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <InstagramIcon />
+      </a>
+      <a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        <FacebookIcon />
+      </a>
+    </div>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="12" cy="12" r="3.8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="17.3" cy="6.7" r="0.9" fill="currentColor" />
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M14.2 8.4V6.9c0-.7.4-1 1.1-1H17V3.4h-2.2C12.3 3.4 11 4.7 11 6.8v1.6H9v2.6h2V20.5h3.1v-9.5h2.3l.3-2.6h-2.5z"
+      />
+    </svg>
   );
 }

@@ -45,6 +45,9 @@ export function watermarkFor(person: { id: string }) {
 }
 export const STUDIO_PIN = "8288824";
 export const STUDIO_EMAIL = "hello@truefamilyphotography.com";
+export const INSTAGRAM_URL = "https://www.instagram.com/truefamilyphotography/";
+export const FACEBOOK_URL = "https://www.facebook.com/truefamilyphotography";
+export const SPORTING_EVENTS_URL = "https://mesa.truefamilyphotography.com";
 export const SERVICE_AREA = "Northern California — and wherever the story lives.";
 
 export const photographers: Photographer[] = [
