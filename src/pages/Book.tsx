@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { agreementBody, agreementTitle } from "../data/agreement";
-import { bookablePhotographers, getPhotographer, sessionsFor } from "../data/studio";
+import { bookablePhotographers, getPhotographer, LIABILITY_NOTE, sessionsFor } from "../data/studio";
 import { emailStudio } from "../lib/email";
 import { findGift, isDateHeld, listHeldDates, redeemGift, saveBooking } from "../lib/storage";
 
@@ -112,6 +112,7 @@ export function Book() {
             Patricia for families and formals. Skylar for sports and cars. Phoenix for Little Lens
             adventures (parent along). Chris gets the email. He will not be the one holding the camera.
           </p>
+          <p>{LIABILITY_NOTE}</p>
         </div>
 
         <div className="picker">

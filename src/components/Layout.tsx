@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   FACEBOOK_URL,
   INSTAGRAM_URL,
+  LIABILITY_NOTE,
   photographers,
   SPORTING_EVENTS_URL,
   STUDIO_EMAIL,
@@ -90,6 +91,7 @@ export function Layout() {
               A family studio. Every image is marked name@truefamilyphotography — so you always know
               who made it, and that it lives under one business, one insurance, one archive.
             </p>
+            <p style={{ marginTop: 12, maxWidth: "36ch", color: "var(--ink-soft)" }}>{LIABILITY_NOTE}</p>
           </div>
           <div>
             <p className="kicker">The photographers</p>

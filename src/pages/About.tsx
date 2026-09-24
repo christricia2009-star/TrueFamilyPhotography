@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { photographers, SERVICE_AREA, STUDIO_NAME } from "../data/studio";
+import { LIABILITY_NOTE, photographers, SERVICE_AREA, STUDIO_NAME } from "../data/studio";
 
 export function About() {
   return (
@@ -13,6 +13,7 @@ export function About() {
             contracts, and the archive all live in the same place. The pictures are credited by the
             person who made them. Easy to correlate. Easy to remember.
           </p>
+          <p>{LIABILITY_NOTE}</p>
         </div>
         <div className="photographer-grid" style={{ marginTop: 12 }}>
           {photographers.map((p) => (
