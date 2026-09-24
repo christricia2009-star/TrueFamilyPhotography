@@ -9,9 +9,9 @@ export function Home() {
       <section className="hero">
         <img
           src={previewSrc("/images/hero.jpg")}
-          alt="A butterfly on a purple flower, photographed for True Family Photography"
-          width={1320}
-          height={1316}
+          alt="A tiger in warm light, photographed for True Family Photography"
+          width={1388}
+          height={1734}
           fetchPriority="high"
           decoding="async"
         />

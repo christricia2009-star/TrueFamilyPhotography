@@ -116,7 +116,12 @@ async function marked(input, tile, filename, { longEdge, width, quality }) {
 }
 
 const tile = await renderTile();
-const files = await walk(SOURCE);
+const only = process.argv[2];
+const files = (await walk(SOURCE)).filter((file) => {
+  if (!only) return true;
+  const relative = path.relative(SOURCE, file).split(path.sep).join("/");
+  return relative === only || path.basename(file) === only;
+});
 let count = 0;
 for (const file of files) {
   const relative = path.relative(SOURCE, file);
