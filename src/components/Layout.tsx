@@ -52,10 +52,6 @@ export function Layout() {
         </span>
       </a>
       <header className={`site-header ${isHome ? "is-hero" : "is-inner"} ${solid ? "is-solid" : ""}`}>
-        <Link to="/" className="wordmark" onClick={() => setOpen(false)}>
-          <strong>True Family</strong>
-          <span>Photography</span>
-        </Link>
         <div className="header-actions">
           <nav className={`nav-links ${open ? "is-open" : ""}`}>
             <NavLink to="/photographers">Photographers</NavLink>
@@ -86,7 +82,9 @@ export function Layout() {
         <div className="wrap footer-grid">
           <div>
             <p className="kicker">The studio</p>
-            <h2>{STUDIO_NAME}</h2>
+            <h2>
+              <Link to="/">{STUDIO_NAME}</Link>
+            </h2>
             <p style={{ marginTop: 12, maxWidth: "36ch", color: "var(--ink-soft)" }}>
               A family studio. Every image is marked name@truefamilyphotography — so you always know
               who made it, and that it lives under one business, one insurance, one archive.
