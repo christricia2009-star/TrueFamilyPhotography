@@ -7,17 +7,19 @@ export function Home() {
   return (
     <>
       <section className="hero">
+        <h1 className="visually-hidden">True Family Photography</h1>
         <img
-          src={previewSrc("/images/hero.jpg")}
+          src="/images/hero.jpg"
           alt="A tiger in warm light, photographed for True Family Photography"
           width={1388}
           height={1734}
           fetchPriority="high"
           decoding="async"
         />
-        <div className="hero-copy">
-          <p className="kicker hero-kicker">{SERVICE_AREA}</p>
-          <h1>True Family Photography</h1>
+      </section>
+      <section className="hero-intro">
+        <div className="wrap">
+          <p className="kicker">{SERVICE_AREA}</p>
           <p className="lede">
             Families, football, formals, first days. These are photographs from sessions we have already made.
           </p>
@@ -25,7 +27,7 @@ export function Home() {
             <a href="#work" className="btn">
               See the work
             </a>
-            <Link to="/book" className="btn ghost" style={{ color: "#fbf6ee", borderColor: "#fbf6ee" }}>
+            <Link to="/book" className="btn ghost">
               Book a session
             </Link>
           </div>
