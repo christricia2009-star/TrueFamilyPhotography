@@ -52,6 +52,10 @@ export function Layout() {
         </span>
       </a>
       <header className={`site-header ${isHome ? "is-hero" : "is-inner"} ${solid ? "is-solid" : ""}`}>
+        <Link to="/" className="wordmark" onClick={() => setOpen(false)}>
+          <strong>True Family</strong>
+          <span>Photography</span>
+        </Link>
         <div className="header-actions">
           <nav className={`nav-links ${open ? "is-open" : ""}`}>
             <NavLink to="/photographers">Photographers</NavLink>
