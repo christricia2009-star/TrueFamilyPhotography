@@ -184,7 +184,6 @@ const shootPlan: { id: string; album: string; title: string; blurb: string }[] =
   { id: "formals", album: "Formals", title: "Formals", blurb: "Gowns, steps, the arbor." },
   { id: "weddings", album: "Vows", title: "Weddings", blurb: "The ceremony, kept." },
   { id: "first-days", album: "First days", title: "First days", blurb: "Newborns and the smallest rooms." },
-  { id: "football", album: "Under the lights", title: "Football", blurb: "Friday nights on the field." },
   { id: "cars", album: "NorCal spots", title: "Cars", blurb: "Meets and garages." },
 ];
 
