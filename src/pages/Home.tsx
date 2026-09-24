@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Photo } from "../components/Photo";
-import { clientGalleries, getPhotographer, previousShoots, SERVICE_AREA } from "../data/studio";
-import { previewSrc, thumbSrc } from "../lib/images";
+import { getPhotographer, previousShoots, SERVICE_AREA } from "../data/studio";
+import { previewSrc } from "../lib/images";
 
 export function Home() {
   return (
@@ -63,30 +63,6 @@ export function Home() {
                 </div>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      <section className="section tight">
-        <div className="wrap">
-          <div className="section-head">
-            <div>
-              <p className="kicker">Galleries</p>
-              <h2>Sessions we have kept</h2>
-            </div>
-          </div>
-          <div className="gallery-list">
-            {clientGalleries.map((gallery) => (
-              <Link key={gallery.id} to={`/galleries/${gallery.id}`} className="gallery-row">
-                <img src={thumbSrc(gallery.cover)} alt="" />
-                <div>
-                  <p className="kicker">{gallery.dateLabel}</p>
-                  <h3 style={{ fontSize: "2rem" }}>{gallery.title}</h3>
-                  <p style={{ color: "var(--muted)" }}>{gallery.subtitle}</p>
-                </div>
-                <span className="btn ghost">View</span>
-              </Link>
-            ))}
           </div>
         </div>
       </section>
