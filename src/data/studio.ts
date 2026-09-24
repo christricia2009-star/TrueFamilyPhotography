@@ -192,10 +192,8 @@ export type Shoot = {
 const shootPlan: { id: string; album: string; title: string; blurb: string }[] = [
   { id: "families", album: "Families", title: "Families", blurb: "The year as it was actually lived." },
   { id: "formals", album: "Formals", title: "Formals", blurb: "Gowns, steps, the arbor." },
-  { id: "weddings", album: "Vows", title: "Weddings", blurb: "The ceremony, kept." },
   { id: "wedding-day", album: "Wedding day", title: "Wedding", blurb: "The day, kept." },
   { id: "maternity-newborn", album: "Maternity & newborn", title: "Maternity & newborn", blurb: "Before, and the first days." },
-  { id: "first-days", album: "First days", title: "First days", blurb: "Newborns and the smallest rooms." },
   { id: "cars", album: "NorCal spots", title: "Cars", blurb: "Meets and garages." },
 ];
 
