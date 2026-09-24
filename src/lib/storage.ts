@@ -9,6 +9,16 @@ const NOTES_KEY = "tfp-field-notes";
 const GIFTS_KEY = "tfp-gifts";
 const CART_KEY = "tfp-cart";
 const ORDERS_KEY = "tfp-orders";
+const NOTIFY_KEY = "tfp-notify-signups";
+export const NOTIFY_SEEN_KEY = "tfp-notify-seen";
+
+export type NotifySignup = {
+  id: string;
+  channel: "email" | "text";
+  contact: string;
+  page: string;
+  createdAt: string;
+};
 
 export type Booking = {
   id: string;
@@ -98,6 +108,20 @@ function read<T>(key: string, fallback: T): T {
 
 function write<T>(key: string, value: T) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function listNotifySignups(): NotifySignup[] {
+  return read<NotifySignup[]>(NOTIFY_KEY, []);
+}
+
+export function saveNotifySignup(entry: Omit<NotifySignup, "id" | "createdAt">): NotifySignup {
+  const next: NotifySignup = {
+    ...entry,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  };
+  write(NOTIFY_KEY, [next, ...listNotifySignups()]);
+  return next;
 }
 
 export function listBookings(): Booking[] {

@@ -10,6 +10,7 @@ import {
   listFavorites,
   listGifts,
   listHeldDates,
+  listNotifySignups,
   listOrders,
   listPolaroids,
   savePolaroid,
@@ -22,6 +23,7 @@ export function Studio() {
   const [printId, setPrintId] = useState<string | null>(null);
   const [, setTick] = useState(0);
   const bookings = authed ? listBookings() : [];
+  const alerts = authed ? listNotifySignups() : [];
   const origin = typeof window === "undefined" ? "" : window.location.origin;
 
   const cards = useMemo(
@@ -92,7 +94,7 @@ export function Studio() {
         <div className="page-hero" style={{ paddingTop: 0 }}>
           <p className="kicker">Family desk</p>
           <h1>Studio</h1>
-          <p>Bookings, held dates, hearts, shop orders, gift codes, and Phoenix’s polaroids.</p>
+          <p>Bookings, photo alerts, held dates, hearts, shop orders, gift codes, and Phoenix’s polaroids.</p>
         </div>
 
         <h2 style={{ marginBottom: 12 }}>Bookings</h2>
@@ -140,6 +142,34 @@ export function Studio() {
                   </tr>
                 );
               })}
+            </tbody>
+          </table>
+        )}
+
+        <h2 style={{ margin: "48px 0 12px" }}>Photo alerts</h2>
+        {alerts.length === 0 ? (
+          <p className="note">
+            First-visit signups email the studio. Ones sent from this browser are listed here.
+          </p>
+        ) : (
+          <table className="studio-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>How</th>
+                <th>Contact</th>
+                <th>Page</th>
+              </tr>
+            </thead>
+            <tbody>
+              {alerts.map((alert) => (
+                <tr key={alert.id}>
+                  <td>{new Date(alert.createdAt).toLocaleString()}</td>
+                  <td>{alert.channel}</td>
+                  <td>{alert.contact}</td>
+                  <td>{alert.page}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}

@@ -9,6 +9,7 @@ import {
   STUDIO_EMAIL,
   STUDIO_NAME,
 } from "../data/studio";
+import { NotifyPrompt } from "./NotifyPrompt";
 import { cartCount } from "../lib/storage";
 
 export function Layout() {
@@ -43,6 +44,7 @@ export function Layout() {
 
   return (
     <>
+      <NotifyPrompt />
       <a className="promo-banner" href={FOOTBALL_EVENTS_URL}>
         <span className="promo-copy">
           Football Events by <span className="promo-handle">@truefamilyphotography</span>
