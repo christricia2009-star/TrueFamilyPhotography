@@ -83,7 +83,9 @@ export function Gallery() {
     }
   }
 
-  if (!unlocked) {
+  const showPhotos = unlocked || gallery.publicPreview;
+
+  if (!showPhotos) {
     return (
       <section className="section" style={{ paddingTop: 140 }}>
         <div className="wrap lock-screen">
@@ -129,35 +131,46 @@ export function Gallery() {
       <div className="wrap">
         <div className="page-hero gallery-head" style={{ paddingTop: 0 }}>
           <div>
-            <p className="kicker">{photographer.handle} · unlocked</p>
+            <p className="kicker">{unlocked ? `${photographer.handle} · unlocked` : photographer.handle}</p>
             <h1>{gallery.title}</h1>
             <p>
-              Heart the frames for the wall. Download the files you paid for. Phoenix can turn a heart
-              into a coloring page.
+              {unlocked
+                ? "Heart the frames for the wall. Download the files you paid for. Phoenix can turn a heart into a coloring page."
+                : `${gallery.subtitle.replace(/\.$/, "")}. Tap a picture to see it larger.`}
             </p>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => {
-                  setPlayIndex(open ?? 0);
-                  setPlay(true);
-                }}
-              >
-                Play the album
-              </button>
-              <button type="button" className="btn ghost" onClick={() => setReveal(true)}>
-                Play the reveal
-              </button>
-              <button type="button" className="btn ghost" onClick={() => setWall(true)} disabled={!hearts.length}>
-                On the wall · {hearts.length}
-              </button>
-              <button type="button" className="btn ghost" onClick={zip} disabled={busy === "zip"}>
-                {busy === "zip" ? "Packing…" : "Download album"}
-              </button>
-            </div>
+            {unlocked ? (
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    setPlayIndex(open ?? 0);
+                    setPlay(true);
+                  }}
+                >
+                  Play the album
+                </button>
+                <button type="button" className="btn ghost" onClick={() => setReveal(true)}>
+                  Play the reveal
+                </button>
+                <button type="button" className="btn ghost" onClick={() => setWall(true)} disabled={!hearts.length}>
+                  On the wall · {hearts.length}
+                </button>
+                <button type="button" className="btn ghost" onClick={zip} disabled={busy === "zip"}>
+                  {busy === "zip" ? "Packing…" : "Download album"}
+                </button>
+              </div>
+            ) : (
+              <form className="code-form" onSubmit={tryCode} style={{ marginTop: 18 }}>
+                <input name="code" placeholder="Code for the clean files" aria-label="Access code" autoComplete="off" />
+                <button className="btn" type="submit">
+                  Unlock
+                </button>
+              </form>
+            )}
+            {error && <p className="error" style={{ marginTop: 12 }}>{error}</p>}
           </div>
-          {shareUrl && <QrCard value={shareUrl} caption={gallery.code} />}
+          {unlocked && shareUrl && <QrCard value={shareUrl} caption={gallery.code} />}
         </div>
         <div className="masonry">
           {gallery.photos.map((photo, i) => (
@@ -166,7 +179,7 @@ export function Gallery() {
                 src={photo.src}
                 alt={photo.alt}
                 photographer={photographer}
-                original
+                original={unlocked}
                 onClick={() => setOpen(i)}
               />
               <button
@@ -186,17 +199,19 @@ export function Gallery() {
               >
                 ♥
               </button>
-              <div className="shot-actions">
-                <button
-                  type="button"
-                  onClick={() => downloadPhoto(photo.src, `${gallery.id}-${i + 1}.jpg`)}
-                >
-                  File
-                </button>
-                <button type="button" onClick={() => phoenixPage(photo.src)} disabled={busy === "art"}>
-                  Phoenix page
-                </button>
-              </div>
+              {unlocked && (
+                <div className="shot-actions">
+                  <button
+                    type="button"
+                    onClick={() => downloadPhoto(photo.src, `${gallery.id}-${i + 1}.jpg`)}
+                  >
+                    File
+                  </button>
+                  <button type="button" onClick={() => phoenixPage(photo.src)} disabled={busy === "art"}>
+                    Phoenix page
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -206,7 +221,7 @@ export function Gallery() {
           photos={gallery.photos}
           index={open}
           photographer={photographer}
-          original
+          original={unlocked}
           onClose={() => setOpen(null)}
           onIndex={setOpen}
         />
@@ -216,7 +231,7 @@ export function Gallery() {
           photos={gallery.photos}
           index={playIndex}
           photographer={photographer}
-          original
+          original={unlocked}
           onClose={() => setPlay(false)}
           onIndex={setPlayIndex}
         />

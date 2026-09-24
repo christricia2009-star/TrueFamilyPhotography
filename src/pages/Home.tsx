@@ -47,22 +47,22 @@ export function Home() {
             A session is booked with the studio. The name on a frame is who held the camera that day.
           </p>
           <div className="albums" style={{ marginTop: 36 }}>
-            {previousShoots.map((shoot) => (
-              <div key={shoot.id} className="album">
-                <h3>{shoot.title}</h3>
-                <p style={{ color: "var(--muted)", marginTop: -8, marginBottom: 16 }}>{shoot.blurb}</p>
-                <div className="album-grid">
-                  {shoot.photos.map((photo) => (
+            {previousShoots.map((shoot) => {
+              const cover = shoot.photos[0];
+              return (
+                <div key={shoot.id} className="album">
+                  <h3>{shoot.title}</h3>
+                  <p style={{ color: "var(--muted)", marginTop: -8, marginBottom: 16 }}>{shoot.blurb}</p>
+                  <Link to={`/galleries/${shoot.id}`} className="album-cover" aria-label={`Open the ${shoot.title} gallery`}>
                     <Photo
-                      key={photo.src}
-                      src={photo.src}
-                      alt={photo.alt}
-                      photographer={getPhotographer(photo.photographerId)}
+                      src={cover.src}
+                      alt={cover.alt}
+                      photographer={getPhotographer(cover.photographerId)}
                     />
-                  ))}
+                  </Link>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

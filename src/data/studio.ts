@@ -43,6 +43,8 @@ export type ClientGallery = {
   dateLabel: string;
   cover: string;
   photos: Photo[];
+  /** Homepage covers open straight into the pictures. The code still unlocks clean files. */
+  publicPreview?: boolean;
 };
 
 export const STUDIO_NAME = "True Family Photography";
@@ -211,8 +213,64 @@ export const previousShoots: Shoot[] = shootPlan
   .filter((shoot) => shoot.photos.length > 0);
 
 const patricia = photographers[0];
+const skylar = photographers[1];
 
 export const clientGalleries: ClientGallery[] = [
+  {
+    id: "families",
+    title: "Families",
+    subtitle: "The year as it was actually lived.",
+    photographerId: "patricia",
+    code: "TFP-FAMILY-2026",
+    dateLabel: "Families",
+    cover: "/images/patricia/p07.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Families"),
+    publicPreview: true,
+  },
+  {
+    id: "formals",
+    title: "Formals",
+    subtitle: "Gowns, steps, the arbor.",
+    photographerId: "patricia",
+    code: "TFP-FORMAL-2026",
+    dateLabel: "Formals",
+    cover: "/images/patricia/p03.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Formals"),
+    publicPreview: true,
+  },
+  {
+    id: "wedding-day",
+    title: "Wedding",
+    subtitle: "The day, kept",
+    photographerId: "patricia",
+    code: "TFP-WEDDING-2026",
+    dateLabel: "Wedding day",
+    cover: "/images/weddings/01.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Wedding day"),
+    publicPreview: true,
+  },
+  {
+    id: "maternity-newborn",
+    title: "Maternity & newborn",
+    subtitle: "Before, and the first days",
+    photographerId: "patricia",
+    code: "TFP-NEWBORN-2026",
+    dateLabel: "Maternity & newborn",
+    cover: "/images/maternity/01.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Maternity & newborn"),
+    publicPreview: true,
+  },
+  {
+    id: "cars",
+    title: "Cars",
+    subtitle: "Meets and garages.",
+    photographerId: "skylar",
+    code: "TFP-CARS-2026",
+    dateLabel: "Cars",
+    cover: "/images/skylar/car01.jpg",
+    photos: skylar.photos.filter((p) => p.album === "NorCal spots"),
+    publicPreview: true,
+  },
   {
     id: "wildflower-year",
     title: "The Hale Family",
@@ -232,26 +290,6 @@ export const clientGalleries: ClientGallery[] = [
     dateLabel: "May 2026",
     cover: "/images/patricia/p02.jpg",
     photos: patricia.photos.filter((p) => p.album === "Formals" || p.album === "Vows"),
-  },
-  {
-    id: "wedding-day",
-    title: "Wedding",
-    subtitle: "The day, kept",
-    photographerId: "patricia",
-    code: "TFP-WEDDING-2026",
-    dateLabel: "Wedding day",
-    cover: "/images/weddings/01.jpg",
-    photos: patricia.photos.filter((p) => p.album === "Wedding day"),
-  },
-  {
-    id: "maternity-newborn",
-    title: "Maternity & newborn",
-    subtitle: "Before, and the first days",
-    photographerId: "patricia",
-    code: "TFP-NEWBORN-2026",
-    dateLabel: "Maternity & newborn",
-    cover: "/images/maternity/01.jpg",
-    photos: patricia.photos.filter((p) => p.album === "Maternity & newborn"),
   },
 ];
 

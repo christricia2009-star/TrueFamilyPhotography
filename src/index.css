@@ -687,6 +687,15 @@ main {
   aspect-ratio: 4 / 5;
 }
 
+.album-cover {
+  display: block;
+  max-width: 440px;
+}
+
+.album-cover .photo {
+  cursor: pointer;
+}
+
 .form {
   display: grid;
   gap: 16px;
@@ -1160,7 +1169,21 @@ textarea:focus {
   }
 
   .masonry {
-    columns: 1;
+    columns: 3;
+    column-gap: 6px;
+  }
+
+  .masonry .photo,
+  .heart-shot {
+    margin-bottom: 6px;
+  }
+
+  .heart-btn {
+    top: 6px;
+    left: 6px;
+    width: 26px;
+    height: 26px;
+    font-size: 0.85rem;
   }
 
   .wrap {
