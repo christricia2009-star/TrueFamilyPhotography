@@ -194,7 +194,7 @@ export type Shoot = {
 const shootPlan: { id: string; album: string; title: string; blurb: string }[] = [
   { id: "families", album: "Families", title: "Families", blurb: "The year as it was actually lived." },
   { id: "formals", album: "Formals", title: "Formals", blurb: "Gowns, steps, the arbor." },
-  { id: "wedding-day", album: "Wedding day", title: "Wedding", blurb: "The day, kept." },
+  { id: "wedding-day", album: "Wedding day", title: "Weddings", blurb: "The day, kept." },
   { id: "maternity-newborn", album: "Maternity & newborn", title: "Maternity & newborn", blurb: "Before, and the first days." },
   { id: "cars", album: "NorCal spots", title: "Cars", blurb: "Meets and garages." },
 ];
@@ -240,11 +240,11 @@ export const clientGalleries: ClientGallery[] = [
   },
   {
     id: "wedding-day",
-    title: "Wedding",
+    title: "Weddings",
     subtitle: "The day, kept",
     photographerId: "patricia",
     code: "TFP-WEDDING-2026",
-    dateLabel: "Wedding day",
+    dateLabel: "Weddings",
     cover: "/images/weddings/01.jpg",
     photos: patricia.photos.filter((p) => p.album === "Wedding day"),
     publicPreview: true,
