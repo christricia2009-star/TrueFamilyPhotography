@@ -9,9 +9,10 @@ type Props = {
   photographer?: Photographer;
   onClose: () => void;
   onIndex: (next: number) => void;
+  original?: boolean;
 };
 
-export function Lightbox({ photos, index, photographer, onClose, onIndex }: Props) {
+export function Lightbox({ photos, index, photographer, onClose, onIndex, original }: Props) {
   const photo = photos[index];
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export function Lightbox({ photos, index, photographer, onClose, onIndex }: Prop
         ‹
       </button>
       <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: "100%" }}>
-        <Photo src={photo.src} alt={photo.alt} photographer={photographer} />
+        <Photo src={photo.src} alt={photo.alt} photographer={photographer} original={original} />
       </div>
       <button
         className="lightbox-nav next"

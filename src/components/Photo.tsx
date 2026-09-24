@@ -1,5 +1,6 @@
 import type { Photographer } from "../data/studio";
 import { watermarkFor } from "../data/studio";
+import { previewSrc } from "../lib/images";
 
 type Props = {
   src: string;
@@ -11,16 +12,19 @@ type Props = {
   eager?: boolean;
   width?: number;
   height?: number;
+  /** Unlocked client files. Public pages use the watermarked preview. */
+  original?: boolean;
 };
 
-export function Photo({ src, alt, photographer, locked, className, onClick, eager, width, height }: Props) {
+export function Photo({ src, alt, photographer, locked, className, onClick, eager, width, height, original }: Props) {
   const mark = photographer ? watermarkFor(photographer) : "";
   const at = mark.indexOf("@");
+  const shown = original ? src : previewSrc(src);
 
   return (
     <figure className={`photo ${className ?? ""}`} onClick={onClick} role={onClick ? "button" : undefined}>
       <img
-        src={src}
+        src={shown}
         alt={alt}
         className={locked ? "is-locked" : undefined}
         loading={eager ? "eager" : "lazy"}

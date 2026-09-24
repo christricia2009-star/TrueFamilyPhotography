@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import { Photo } from "../components/Photo";
 import { clientGalleries, getPhotographer, previousShoots, SERVICE_AREA } from "../data/studio";
+import { previewSrc, thumbSrc } from "../lib/images";
 
 export function Home() {
   return (
     <>
       <section className="hero">
         <img
-          src="/images/hero.jpg"
+          src={previewSrc("/images/hero.jpg")}
           alt="A butterfly on a purple flower, photographed for True Family Photography"
           width={1320}
           height={1316}
@@ -77,7 +78,7 @@ export function Home() {
           <div className="gallery-list">
             {clientGalleries.map((gallery) => (
               <Link key={gallery.id} to={`/galleries/${gallery.id}`} className="gallery-row">
-                <img src={gallery.cover} alt="" />
+                <img src={thumbSrc(gallery.cover)} alt="" />
                 <div>
                   <p className="kicker">{gallery.dateLabel}</p>
                   <h3 style={{ fontSize: "2rem" }}>{gallery.title}</h3>
@@ -110,7 +111,7 @@ export function Home() {
           </div>
         </div>
         <div className="visual">
-          <img src="/images/patricia/p02.jpg" alt="Formal portrait from a client session" />
+          <img src={previewSrc("/images/patricia/p02.jpg")} alt="Formal portrait from a client session" />
         </div>
       </section>
     </>

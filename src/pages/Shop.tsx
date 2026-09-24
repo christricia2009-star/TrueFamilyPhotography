@@ -2,6 +2,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { formatMoney, shopProducts } from "../data/studio";
 import { emailStudio } from "../lib/email";
+import { thumbSrc } from "../lib/images";
 import { startStripeCheckout } from "../lib/stripe";
 import {
   addToCart,
@@ -205,7 +206,7 @@ function ProductCard({
 
   return (
     <article className="product-card">
-      <img src={product.image} alt="" />
+      <img src={thumbSrc(product.image)} alt="" />
       <div className="meta">
         <h3>{product.name}</h3>
         <p>{product.blurb}</p>

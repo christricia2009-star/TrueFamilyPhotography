@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { photographers } from "../data/studio";
+import { thumbSrc } from "../lib/images";
 
 export function Photographers() {
   return (
@@ -17,7 +18,7 @@ export function Photographers() {
           {photographers.map((p) => (
             <Link key={p.id} to={`/photographers/${p.id}`} className="photographer-card">
               <div className="frame">
-                <img src={p.portrait} alt={p.portraitAlt} />
+                <img src={thumbSrc(p.portrait)} alt={p.portraitAlt} />
               </div>
               <div className="meta">
                 <span className="handle">{p.handle}</span>

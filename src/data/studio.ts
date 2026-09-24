@@ -4,6 +4,14 @@ export type Photo = {
   album: string;
 };
 
+function sessionFrames(folder: string, count: number, album: string, alt: string): Photo[] {
+  return Array.from({ length: count }, (_, index) => ({
+    src: `/images/${folder}/${String(index + 1).padStart(2, "0")}.jpg`,
+    alt,
+    album,
+  }));
+}
+
 export type MemberKind = "photographer" | "studio" | "junior";
 
 export type Photographer = {
@@ -77,6 +85,8 @@ export const photographers: Photographer[] = [
       { src: "/images/patricia/p11.jpg", alt: "Baby with a football on a white rug", album: "First days" },
       { src: "/images/patricia/p01.jpg", alt: "Butterfly on bark", album: "Quiet things" },
       { src: "/images/patricia/p09.jpg", alt: "Bay Bridge at night", album: "Quiet things" },
+      ...sessionFrames("weddings", 42, "Wedding day", "Wedding photograph"),
+      ...sessionFrames("maternity", 17, "Maternity & newborn", "Maternity and newborn photograph"),
     ],
   },
   {
@@ -183,6 +193,8 @@ const shootPlan: { id: string; album: string; title: string; blurb: string }[] =
   { id: "families", album: "Families", title: "Families", blurb: "The year as it was actually lived." },
   { id: "formals", album: "Formals", title: "Formals", blurb: "Gowns, steps, the arbor." },
   { id: "weddings", album: "Vows", title: "Weddings", blurb: "The ceremony, kept." },
+  { id: "wedding-day", album: "Wedding day", title: "Wedding", blurb: "The day, kept." },
+  { id: "maternity-newborn", album: "Maternity & newborn", title: "Maternity & newborn", blurb: "Before, and the first days." },
   { id: "first-days", album: "First days", title: "First days", blurb: "Newborns and the smallest rooms." },
   { id: "cars", album: "NorCal spots", title: "Cars", blurb: "Meets and garages." },
 ];
@@ -201,7 +213,6 @@ export const previousShoots: Shoot[] = shootPlan
   .filter((shoot) => shoot.photos.length > 0);
 
 const patricia = photographers[0];
-const skylar = photographers[1];
 
 export const clientGalleries: ClientGallery[] = [
   {
@@ -225,14 +236,24 @@ export const clientGalleries: ClientGallery[] = [
     photos: patricia.photos.filter((p) => p.album === "Formals" || p.album === "Vows"),
   },
   {
-    id: "mavericks-friday",
-    title: "Friday Night",
-    subtitle: "Under the lights",
-    photographerId: "skylar",
-    code: "TFP-FRIDAY-3310",
-    dateLabel: "Fall 2026",
-    cover: "/images/skylar/sport02.jpg",
-    photos: skylar.photos.filter((p) => p.album === "Under the lights"),
+    id: "wedding-day",
+    title: "Wedding",
+    subtitle: "The day, kept",
+    photographerId: "patricia",
+    code: "TFP-WEDDING-2026",
+    dateLabel: "Wedding day",
+    cover: "/images/weddings/01.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Wedding day"),
+  },
+  {
+    id: "maternity-newborn",
+    title: "Maternity & newborn",
+    subtitle: "Before, and the first days",
+    photographerId: "patricia",
+    code: "TFP-NEWBORN-2026",
+    dateLabel: "Maternity & newborn",
+    cover: "/images/maternity/01.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Maternity & newborn"),
   },
 ];
 

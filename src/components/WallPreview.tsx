@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { previewSrc } from "../lib/images";
 import type { Favorite } from "../lib/storage";
 
 type Props = {
@@ -18,7 +19,7 @@ export function WallPreview({ hearts, onClose }: Props) {
         ×
       </button>
       <div className="wall-scene">
-        <img className="wall-room" src="/images/wall.jpg" alt="" />
+        <img className="wall-room" src={previewSrc("/images/wall.jpg")} alt="" />
         <div className="wall-frame">
           <img src={shot.src} alt={shot.alt} />
         </div>

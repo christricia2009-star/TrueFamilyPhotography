@@ -166,6 +166,7 @@ export function Gallery() {
                 src={photo.src}
                 alt={photo.alt}
                 photographer={photographer}
+                original
                 onClick={() => setOpen(i)}
               />
               <button
@@ -205,6 +206,7 @@ export function Gallery() {
           photos={gallery.photos}
           index={open}
           photographer={photographer}
+          original
           onClose={() => setOpen(null)}
           onIndex={setOpen}
         />
@@ -214,6 +216,7 @@ export function Gallery() {
           photos={gallery.photos}
           index={playIndex}
           photographer={photographer}
+          original
           onClose={() => setPlay(false)}
           onIndex={setPlayIndex}
         />

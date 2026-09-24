@@ -8,9 +8,10 @@ type Props = {
   photographer?: Photographer;
   onClose: () => void;
   onIndex: (n: number) => void;
+  original?: boolean;
 };
 
-export function Slideshow({ photos, index, photographer, onClose, onIndex }: Props) {
+export function Slideshow({ photos, index, photographer, onClose, onIndex, original }: Props) {
   const photo = photos[index];
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export function Slideshow({ photos, index, photographer, onClose, onIndex }: Pro
       </button>
       <p className="slideshow-label">Playing the album</p>
       <div onClick={(e) => e.stopPropagation()} className="slideshow-frame">
-        <Photo src={photo.src} alt={photo.alt} photographer={photographer} />
+        <Photo src={photo.src} alt={photo.alt} photographer={photographer} original={original} />
       </div>
     </div>
   );

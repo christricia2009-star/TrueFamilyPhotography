@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { clientGalleries, findGalleryByCode, getPhotographer } from "../data/studio";
+import { thumbSrc } from "../lib/images";
 import { isUnlocked } from "../lib/storage";
 
 export function Galleries() {
@@ -44,7 +45,7 @@ export function Galleries() {
             const open = isUnlocked(g.id);
             return (
               <Link key={g.id} to={`/galleries/${g.id}`} className={`gallery-row ${open ? "is-open" : ""}`}>
-                <img src={g.cover} alt="" />
+                <img src={thumbSrc(g.cover)} alt="" />
                 <div>
                   <p className="kicker">{g.dateLabel}</p>
                   <h3 style={{ fontSize: "2rem" }}>{g.title}</h3>
