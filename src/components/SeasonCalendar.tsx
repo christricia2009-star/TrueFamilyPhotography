@@ -6,7 +6,7 @@ export function SeasonCalendar() {
   return (
     <div className="season">
       <p className="kicker">The season</p>
-      <h3>Friday nights Skylar can cover</h3>
+      <h3>Friday nights the studio can cover</h3>
       <ul>
         {seasonGames.map((g) => {
           const day = g.when.slice(0, 10);
@@ -20,7 +20,7 @@ export function SeasonCalendar() {
               {held ? (
                 <em>Held</em>
               ) : (
-                <Link to={`/book/skylar?date=${day}&session=sports`} className="btn">
+                <Link to={`/book?date=${day}&session=sports`} className="btn">
                   Hold this night
                 </Link>
               )}

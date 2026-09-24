@@ -59,9 +59,9 @@ export const photographers: Photographer[] = [
     handle: "@Patricia",
     credit: "patricia@truefamilyphotography",
     kind: "photographer",
-    role: "Families, formals & first days",
+    role: "Photographer",
     tagline: "The quiet in-between.",
-    bio: "Patricia is the lens most families meet first. Maternity in the grass, a kid in the leaves, a couple under an arbor, a newborn by the fireplace — the year you are actually living. Her frames are warm, close, and unhurried. Every image is credited patricia@truefamilyphotography, under the family studio for the work, the insurance, and the archive.",
+    bio: "Patricia photographs the year a family is actually living. Maternity in the grass, a kid in the leaves, a couple under an arbor, a newborn by the fireplace. Her frames are warm, close, and unhurried. Every image is credited patricia@truefamilyphotography, under the family studio for the work, the insurance, and the archive.",
     portrait: "/images/patricia/p07.jpg",
     portraitAlt: "Child portrait in autumn leaves, photographed by Patricia",
     specialties: ["Families", "Maternity", "Newborns", "Formals", "Weddings"],
@@ -85,9 +85,9 @@ export const photographers: Photographer[] = [
     handle: "@Skylar",
     credit: "skylar@truefamilyphotography",
     kind: "photographer",
-    role: "Sports & automotive",
+    role: "Photographer",
     tagline: "Friday nights and fast cars.",
-    bio: "Skylar photographs the other kind of family — the one in pads under the lights, the one that shows up for a car meet on a Saturday. Football at dusk. A Porsche on the lot. A McLaren in a garage. Motion, color, the second before the snap. Credited skylar@truefamilyphotography, same studio, same insurance, a younger eye.",
+    bio: "Skylar photographs motion. Football at dusk. A Porsche on the lot. A McLaren in a garage. Color, and the second before the snap. Credited skylar@truefamilyphotography, same studio, same insurance, a younger eye.",
     portrait: "/images/skylar/sport02.jpg",
     portraitAlt: "Friday night football, photographed by Skylar",
     specialties: ["Sports", "Football", "Automotive", "Events"],
@@ -161,7 +161,7 @@ export const photographers: Photographer[] = [
 
 export const sessionCatalog: { id: string; label: string; blurb: string }[] = [
   { id: "family", label: "Family & lifestyle", blurb: "The year you are actually living." },
-  { id: "year", label: "Year of the family", blurb: "Spring, first day, birthday. Patricia keeps you." },
+  { id: "year", label: "Year of the family", blurb: "Spring, first day, birthday. The studio keeps the year." },
   { id: "wedding", label: "Weddings & formals", blurb: "Vows, gowns, the arbor." },
   { id: "maternity", label: "Maternity", blurb: "The quiet before." },
   { id: "newborn", label: "Newborn", blurb: "First days, small hands." },
@@ -169,8 +169,37 @@ export const sessionCatalog: { id: string; label: string; blurb: string }[] = [
   { id: "sports", label: "Sports", blurb: "Friday nights under the lights." },
   { id: "automotive", label: "Automotive", blurb: "Meets, garages, the good cars." },
   { id: "event", label: "Events", blurb: "Gatherings that should be kept." },
-  { id: "adventure", label: "Little Lens adventure", blurb: "Phoenix’s backyard wonders. Parent along." },
+  { id: "adventure", label: "Little Lens adventure", blurb: "A short session for kids. A parent photographer comes along." },
 ];
+
+export type Shoot = {
+  id: string;
+  title: string;
+  blurb: string;
+  photos: { src: string; alt: string; photographerId: string }[];
+};
+
+const shootPlan: { id: string; album: string; title: string; blurb: string }[] = [
+  { id: "families", album: "Families", title: "Families", blurb: "The year as it was actually lived." },
+  { id: "formals", album: "Formals", title: "Formals", blurb: "Gowns, steps, the arbor." },
+  { id: "weddings", album: "Vows", title: "Weddings", blurb: "The ceremony, kept." },
+  { id: "first-days", album: "First days", title: "First days", blurb: "Newborns and the smallest rooms." },
+  { id: "football", album: "Under the lights", title: "Football", blurb: "Friday nights on the field." },
+  { id: "cars", album: "NorCal spots", title: "Cars", blurb: "Meets and garages." },
+];
+
+export const previousShoots: Shoot[] = shootPlan
+  .map((shoot) => ({
+    id: shoot.id,
+    title: shoot.title,
+    blurb: shoot.blurb,
+    photos: photographers.flatMap((person) =>
+      person.photos
+        .filter((photo) => photo.album === shoot.album)
+        .map((photo) => ({ src: photo.src, alt: photo.alt, photographerId: person.id })),
+    ),
+  }))
+  .filter((shoot) => shoot.photos.length > 0);
 
 const patricia = photographers[0];
 const skylar = photographers[1];
@@ -238,7 +267,7 @@ export const nextKickoff = {
   title: "Friday night lights",
   team: "Mavericks",
   when: "2026-09-18T19:00:00-07:00",
-  blurb: "Skylar will be on the sideline. Book him before the lights come on.",
+  blurb: "The studio will be on the sideline. Hold the night before the lights come on.",
 };
 
 export const seasonGames = [
@@ -296,7 +325,7 @@ export const shopProducts: ShopProduct[] = [
   {
     id: "gift",
     name: "Gift certificate",
-    blurb: "A code they redeem when they book. Same studio, their photographer.",
+    blurb: "A code they redeem when they book. Same studio, any session.",
     image: "/images/portrait-phoenix.jpg",
     gift: true,
     variants: [

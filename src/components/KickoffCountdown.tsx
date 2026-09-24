@@ -45,8 +45,8 @@ export function KickoffCountdown() {
         </div>
       )}
       <p>{nextKickoff.blurb}</p>
-      <Link to="/book/skylar" className="btn" style={{ marginTop: 16 }}>
-        Book Skylar
+      <Link to="/book?session=sports" className="btn" style={{ marginTop: 16 }}>
+        Book the night
       </Link>
     </div>
   );

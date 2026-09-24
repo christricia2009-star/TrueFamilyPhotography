@@ -1,7 +1,7 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { agreementBody, agreementTitle } from "../data/agreement";
-import { bookablePhotographers, getPhotographer, LIABILITY_NOTE, sessionsFor } from "../data/studio";
+import { bookablePhotographers, getPhotographer, LIABILITY_NOTE, sessionCatalog } from "../data/studio";
 import { emailStudio } from "../lib/email";
 import { findGift, isDateHeld, listHeldDates, redeemGift, saveBooking } from "../lib/storage";
 
@@ -10,9 +10,11 @@ export function Book() {
   const [params] = useSearchParams();
   const preset = id ? getPhotographer(id) : undefined;
   const [photographerId, setPhotographerId] = useState(
-    preset?.bookable ? preset.id : bookablePhotographers[0].id,
+    preset?.bookable && preset.kind === "photographer" ? preset.id : "",
   );
-  const [sessionType, setSessionType] = useState(params.get("session") || "");
+  const [sessionType, setSessionType] = useState(
+    params.get("session") || (preset?.kind === "junior" ? "adventure" : ""),
+  );
   const [date, setDate] = useState(params.get("date") || "");
   const [agreed, setAgreed] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
@@ -21,11 +23,10 @@ export function Book() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  const person = getPhotographer(photographerId);
-  const sessions = useMemo(() => (person ? sessionsFor(person) : []), [person]);
-  const holdsDates = person?.id === "patricia" || person?.id === "skylar";
-  const dateTaken = Boolean(person && date && isDateHeld(person.id, date));
-  const held = person ? listHeldDates().filter((d) => d.photographerId === person.id) : [];
+  const person = photographerId ? getPhotographer(photographerId) : undefined;
+  const sessions = sessionCatalog;
+  const dateTaken = Boolean(date && isDateHeld("studio", date));
+  const held = listHeldDates();
   const gift = giftCode ? findGift(giftCode) : undefined;
   const year = (sessionType || sessions[0]?.id) === "year";
 
@@ -38,9 +39,8 @@ export function Book() {
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!person) return;
     if (dateTaken) {
-      setError("That date is already held for this photographer. Pick another.");
+      setError("That date is already held. Pick another.");
       return;
     }
     if (giftCode && (!gift || gift.remaining <= 0)) {
@@ -55,7 +55,7 @@ export function Book() {
     const data = new FormData(e.currentTarget);
     if (gift && gift.remaining > 0) redeemGift(gift.code);
     const booking = saveBooking({
-      photographerId: person.id,
+      photographerId: person?.id || "studio",
       sessionType: String(data.get("sessionType") || sessions[0]?.id || ""),
       date: String(data.get("date") || ""),
       location: String(data.get("location") || ""),
@@ -67,8 +67,8 @@ export function Book() {
       giftCode: gift?.code,
     });
     await emailStudio({
-      _subject: `Booking · ${person.name} · ${booking.date}`,
-      photographer: person.credit,
+      _subject: `Booking · ${booking.sessionType} · ${booking.date}`,
+      photographer: person?.credit || "studio",
       session: booking.sessionType,
       date: booking.date,
       location: booking.location,
@@ -83,19 +83,17 @@ export function Book() {
     setSent(booking.id);
   }
 
-  if (sent && person) {
+  if (sent) {
     return (
       <section className="section" style={{ paddingTop: 140 }}>
         <div className="wrap confirm">
           <p className="kicker">Request received</p>
           <h1>We’ll write back.</h1>
           <p>
-            {person.kind === "junior" ? "The family studio is on it, with Phoenix" : person.name} — and
-            Chris just got the email. The date is held for Patricia and Skylar so nobody else can take
-            that sunset.
+            The studio has the request. The date is held so another session does not take that same light.
           </p>
-          <Link to={`/photographers/${person.id}`} className="btn" style={{ marginTop: 28 }}>
-            Back to {person.handle}
+          <Link to="/" className="btn" style={{ marginTop: 28 }}>
+            Back to the photographs
           </Link>
         </div>
       </section>
@@ -107,36 +105,15 @@ export function Book() {
       <div className="wrap">
         <div className="page-hero" style={{ paddingTop: 0 }}>
           <p className="kicker">Book</p>
-          <h1>Pick a photographer.</h1>
+          <h1>Book a session.</h1>
           <p>
-            Patricia for families and formals. Skylar for sports and cars. Phoenix for Little Lens
-            adventures (parent along). Chris gets the email. He will not be the one holding the camera.
+            Families, football, formals, cars, newborns — the studio photographs all of it. A preferred
+            name is optional. The session is not locked to one person.
           </p>
           <p>{LIABILITY_NOTE}</p>
         </div>
 
-        <div className="picker">
-          {bookablePhotographers.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className={p.id === photographerId ? "is-on" : ""}
-              onClick={() => {
-                setPhotographerId(p.id);
-                setSessionType("");
-                setError("");
-              }}
-            >
-              <span className="handle">{p.handle}</span>
-              <strong style={{ display: "block", fontFamily: "var(--serif)", fontSize: "1.4rem" }}>{p.name}</strong>
-              <span style={{ fontSize: "0.78rem", opacity: 0.7 }}>{p.role}</span>
-            </button>
-          ))}
-        </div>
-
-        {person && (
-          <form className="form" onSubmit={onSubmit}>
-            {person.bookingNote && <p className="note">{person.bookingNote}</p>}
+        <form className="form" onSubmit={onSubmit}>
             <label>
               Session
               <select
@@ -153,6 +130,29 @@ export function Book() {
               </select>
             </label>
             <label>
+              Photographer, if you have a preference
+              <select
+                name="photographer"
+                value={photographerId}
+                onChange={(e) => setPhotographerId(e.target.value)}
+              >
+                <option value="">No preference</option>
+                {bookablePhotographers
+                  .filter((p) => p.kind === "photographer")
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            {(sessionType || sessions[0]?.id) === "adventure" && (
+              <p className="note">
+                Little Lens adventures are 30–45 minutes, with a parent photographer along. Phoenix is eight.
+                The booking still goes through the studio.
+              </p>
+            )}
+            <label>
               Preferred date
               <input
                 type="date"
@@ -165,15 +165,13 @@ export function Book() {
                 }}
               />
             </label>
-            {holdsDates && (
-              <p className={dateTaken ? "error" : "note"}>
-                {dateTaken
-                  ? "That Saturday is taken. Patricia and Skylar hold dates so two families do not get the same light."
-                  : held.length
-                    ? `Already held: ${held.map((d) => d.date).join(", ")}`
-                    : "Patricia and Skylar hold the date once you send this, so nobody else can book that sunset."}
-              </p>
-            )}
+            <p className={dateTaken ? "error" : "note"}>
+              {dateTaken
+                ? "That date is already held. Pick another so two sessions do not share the same light."
+                : held.length
+                  ? `Already held: ${held.map((d) => d.date).join(", ")}`
+                  : "The studio holds the date once you send this, so nobody else can book that day."}
+            </p>
             <label>
               Where
               <input name="location" placeholder="City, park, field, backyard…" required />
@@ -212,7 +210,7 @@ export function Book() {
             </label>
             {year && (
               <p className="note">
-                Year of the family: tell us spring, first day of school, and a birthday in the note. Patricia
+                Year of the family: tell us spring, first day of school, and a birthday in the note. The studio
                 keeps the year, not just the Saturday.
               </p>
             )}
@@ -240,7 +238,6 @@ export function Book() {
               </div>
             )}
           </form>
-        )}
       </div>
     </section>
   );

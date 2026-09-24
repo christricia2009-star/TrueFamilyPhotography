@@ -8,7 +8,7 @@ import { KickoffCountdown } from "../components/KickoffCountdown";
 import { Lightbox } from "../components/Lightbox";
 import { Photo } from "../components/Photo";
 import { SeasonCalendar } from "../components/SeasonCalendar";
-import { getPhotographer, sessionsFor, type Photo as PhotoType } from "../data/studio";
+import { getPhotographer, type Photo as PhotoType } from "../data/studio";
 import { listLibrary } from "../lib/library";
 import { listPolaroids } from "../lib/storage";
 
@@ -55,16 +55,9 @@ export function Photographer() {
               {person.tagline}
             </p>
             <p style={{ marginTop: 18, color: "var(--ink-soft)", maxWidth: "46ch" }}>{person.bio}</p>
-            <div className="session-row" style={{ marginTop: 22 }}>
-              {sessionsFor(person).map((s) => (
-                <span key={s.id} className="session-chip">
-                  {s.label}
-                </span>
-              ))}
-            </div>
             {person.bookable && (
-              <Link to={`/book/${person.id}`} className="btn" style={{ marginTop: 28 }}>
-                Book {person.name}
+              <Link to="/book" className="btn" style={{ marginTop: 28 }}>
+                Book a session
               </Link>
             )}
             {person.id === "skylar" && (
@@ -141,7 +134,7 @@ function ChrisPage() {
             </ul>
             <div style={{ marginTop: 28, display: "flex", gap: 12, flexWrap: "wrap" }}>
               <Link to="/book" className="btn">
-                Book a photographer
+                Book a session
               </Link>
               <Link to="/galleries" className="btn ghost">
                 The galleries he built
@@ -178,7 +171,7 @@ function PhoenixPage() {
           <div>
             <h2>No portfolio yet. Plenty of opinions.</h2>
             <p style={{ marginTop: 12, fontFamily: "Fredoka, sans-serif", fontSize: "1.1rem" }}>{phoenix.bio}</p>
-            <Link to="/book/phoenix" className="btn" style={{ marginTop: 24, background: "#e23e6b" }}>
+            <Link to="/book?session=adventure" className="btn" style={{ marginTop: 24, background: "#e23e6b" }}>
               Book a Little Lens adventure
             </Link>
           </div>

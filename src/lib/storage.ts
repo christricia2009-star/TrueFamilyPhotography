@@ -111,8 +111,8 @@ export function saveBooking(booking: Omit<Booking, "id" | "createdAt">): Booking
     createdAt: new Date().toISOString(),
   };
   write(BOOKINGS_KEY, [next, ...listBookings()]);
-  if (booking.date && (booking.photographerId === "patricia" || booking.photographerId === "skylar")) {
-    holdDate({ photographerId: booking.photographerId, date: booking.date, bookingId: next.id });
+  if (booking.date) {
+    holdDate({ photographerId: "studio", date: booking.date, bookingId: next.id });
   }
   return next;
 }
@@ -198,11 +198,8 @@ export function holdDate(entry: HeldDate) {
   write(DATES_KEY, [...current, entry]);
 }
 
-export function isDateHeld(photographerId: string, date: string, ignoreBookingId?: string) {
-  if (photographerId !== "patricia" && photographerId !== "skylar") return false;
-  return listHeldDates().some(
-    (d) => d.photographerId === photographerId && d.date === date && d.bookingId !== ignoreBookingId,
-  );
+export function isDateHeld(_photographerId: string, date: string, ignoreBookingId?: string) {
+  return listHeldDates().some((d) => d.date === date && d.bookingId !== ignoreBookingId);
 }
 
 export const defaultPolaroids: Polaroid[] = [

@@ -9,8 +9,8 @@ export function Photographers() {
           <p className="kicker">The family</p>
           <h1>Four of us. One studio.</h1>
           <p>
-            Patricia and Skylar make the pictures. Phoenix is learning to. Chris makes sure the cameras
-            have batteries and the website has a front door. Book the photographer. Meet the whole team.
+            The photographs come first. This page is who makes them. A session is booked with the studio,
+            not locked to one kind of event or one name.
           </p>
         </div>
         <div className="photographer-grid">
