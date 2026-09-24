@@ -5,7 +5,7 @@ import {
   INSTAGRAM_URL,
   LIABILITY_NOTE,
   photographers,
-  SPORTING_EVENTS_URL,
+  FOOTBALL_EVENTS_URL,
   STUDIO_EMAIL,
   STUDIO_NAME,
 } from "../data/studio";
@@ -43,9 +43,9 @@ export function Layout() {
 
   return (
     <>
-      <a className="promo-banner" href={SPORTING_EVENTS_URL}>
+      <a className="promo-banner" href={FOOTBALL_EVENTS_URL}>
         <span className="promo-copy">
-          Sporting Events by <span className="promo-handle">@truefamilyphotography</span>
+          Football Events by <span className="promo-handle">@truefamilyphotography</span>
         </span>
         <span className="promo-arrow" aria-hidden="true">
           →

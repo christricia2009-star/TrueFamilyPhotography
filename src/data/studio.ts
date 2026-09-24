@@ -47,7 +47,7 @@ export const STUDIO_PIN = "8288824";
 export const STUDIO_EMAIL = "hello@truefamilyphotography.com";
 export const INSTAGRAM_URL = "https://www.instagram.com/truefamilyphotography/";
 export const FACEBOOK_URL = "https://www.facebook.com/truefamilyphotography";
-export const SPORTING_EVENTS_URL = "https://mesa.truefamilyphotography.com";
+export const FOOTBALL_EVENTS_URL = "https://football.truefamilyphotography.com";
 export const SERVICE_AREA = "Northern California — and wherever the story lives.";
 export const LIABILITY_NOTE =
   "True Family Photography carries a $2 million liability policy. We can send a certificate of insurance to your venue, school, or event.";
