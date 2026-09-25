@@ -120,7 +120,8 @@ const only = process.argv[2];
 const files = (await walk(SOURCE)).filter((file) => {
   if (!only) return true;
   const relative = path.relative(SOURCE, file).split(path.sep).join("/");
-  return relative === only || path.basename(file) === only;
+  const folder = only.endsWith("/") ? only : `${only}/`;
+  return relative === only || relative.startsWith(folder) || path.basename(file) === only;
 });
 let count = 0;
 for (const file of files) {

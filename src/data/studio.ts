@@ -88,6 +88,8 @@ export const photographers: Photographer[] = [
       { src: "/images/patricia/p09.jpg", alt: "Bay Bridge at night", album: "Quiet things" },
       ...sessionFrames("weddings", 42, "Wedding day", "Wedding photograph"),
       ...sessionFrames("maternity", 17, "Maternity & newborn", "Maternity and newborn photograph"),
+      ...sessionFrames("formal-portrait", 24, "Formal Portrait", "Formal portrait"),
+      ...sessionFrames("animals-pets", 34, "Animals Pets", "Animal and pet photograph"),
     ],
   },
   {
@@ -196,6 +198,8 @@ const shootPlan: { id: string; album: string; title: string; blurb: string }[] =
   { id: "wedding-day", album: "Wedding day", title: "Weddings", blurb: "The day, kept." },
   { id: "maternity-newborn", album: "Maternity & newborn", title: "Maternity & newborn", blurb: "Before, and the first days." },
   { id: "cars", album: "NorCal spots", title: "Cars", blurb: "Meets and garages." },
+  { id: "formal-portrait", album: "Formal Portrait", title: "Formal Portrait", blurb: "Dressed for the picture." },
+  { id: "animals-pets", album: "Animals Pets", title: "Animals Pets", blurb: "The animals who live with you." },
 ];
 
 export const previousShoots: Shoot[] = shootPlan
@@ -268,6 +272,28 @@ export const clientGalleries: ClientGallery[] = [
     dateLabel: "Cars",
     cover: "/images/skylar/car01.jpg",
     photos: skylar.photos.filter((p) => p.album === "NorCal spots"),
+    publicPreview: true,
+  },
+  {
+    id: "formal-portrait",
+    title: "Formal Portrait",
+    subtitle: "Dressed for the picture.",
+    photographerId: "patricia",
+    code: "TFP-FORMAL-PORTRAIT-2026",
+    dateLabel: "Formal Portrait",
+    cover: "/images/formal-portrait/01.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Formal Portrait"),
+    publicPreview: true,
+  },
+  {
+    id: "animals-pets",
+    title: "Animals Pets",
+    subtitle: "The animals who live with you.",
+    photographerId: "patricia",
+    code: "TFP-ANIMALS-2026",
+    dateLabel: "Animals Pets",
+    cover: "/images/animals-pets/01.jpg",
+    photos: patricia.photos.filter((p) => p.album === "Animals Pets"),
     publicPreview: true,
   },
   {
