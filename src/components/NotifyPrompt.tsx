@@ -1,7 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { STUDIO_EMAIL } from "../data/studio";
-import { emailStudio } from "../lib/email";
 import { NOTIFY_SEEN_KEY, saveNotifySignup } from "../lib/storage";
 
 const SMS_CONSENT =
@@ -64,21 +62,26 @@ export function NotifyPrompt() {
     }
     setBusy(true);
     setError("");
-    const sent = await emailStudio({
-      _subject: "Photo alert signup",
-      channel,
-      contact: channel === "text" ? digits : value,
-      consent: channel === "text" ? SMS_CONSENT : "Email alerts for new events and ready galleries.",
-      page: pathname,
+    const contactValue = channel === "text" ? digits : value;
+    const res = await fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        channel,
+        contact: contactValue,
+        consent: channel === "text" ? SMS_CONSENT : "Email alerts for new events and ready galleries.",
+        page: pathname,
+      }),
     });
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
     setBusy(false);
-    if (!sent) {
-      setError(`That didn’t send. Email ${STUDIO_EMAIL} and we’ll add you.`);
+    if (!res.ok || !data.ok) {
+      setError("We couldn't save that. Please try again.");
       return;
     }
     saveNotifySignup({
       channel,
-      contact: channel === "text" ? digits : value,
+      contact: contactValue,
       page: pathname,
     });
     try {

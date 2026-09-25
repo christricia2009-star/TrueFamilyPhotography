@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
+import { deliverSignup } from "./api/notify";
 
 function visitorsDev(): Plugin {
   const file = path.resolve(__dirname, ".data/visitors.json");
@@ -40,8 +41,38 @@ function visitorsDev(): Plugin {
   };
 }
 
+function notifyDev(): Plugin {
+  return {
+    name: "notify-dev",
+    configureServer(server) {
+      server.middlewares.use("/api/notify", (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.end("Method not allowed");
+          return;
+        }
+        const chunks: Buffer[] = [];
+        req.on("data", (chunk) => chunks.push(chunk as Buffer));
+        req.on("end", async () => {
+          try {
+            const body = JSON.parse(Buffer.concat(chunks).toString() || "{}");
+            const result = await deliverSignup(body);
+            res.statusCode = result.ok ? 200 : 502;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(result));
+          } catch {
+            res.statusCode = 502;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ ok: false }));
+          }
+        });
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), visitorsDev()],
+  plugins: [react(), visitorsDev(), notifyDev()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"),

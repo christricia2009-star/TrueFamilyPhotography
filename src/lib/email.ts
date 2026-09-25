@@ -11,7 +11,8 @@ export async function emailStudio(fields: Record<string, string>) {
         ...fields,
       }),
     });
-    return res.ok;
+    const data = (await res.json().catch(() => ({}))) as { success?: string };
+    return res.ok && String(data.success) === "true";
   } catch {
     return false;
   }
