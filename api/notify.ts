@@ -64,11 +64,12 @@ export async function deliverSignup(fields: Signup) {
       ? { email: entry.contact, listIds: [listId()], updateEnabled: false }
       : { attributes: { SMS: sms(entry.contact) }, listIds: [listId()], updateEnabled: false };
   const res = await brevo("/contacts", { method: "POST", body: JSON.stringify(body) });
-  if (res.status === 400) {
-    const data = (await res.json().catch(() => ({}))) as { code?: string };
-    if (data.code === "duplicate_parameter") return { ok: true as const, reason: "duplicate" as const };
+  const text = await res.text();
+  if (res.status === 400 && text.includes("duplicate_parameter")) {
+    return { ok: true as const, reason: "duplicate" as const };
   }
   if (!res.ok && res.status !== 201 && res.status !== 204) {
+    console.error("brevo contact", res.status, text.slice(0, 300));
     return { ok: false as const, reason: "failed" as const };
   }
   return { ok: true as const, reason: "saved" as const };
