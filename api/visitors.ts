@@ -1,6 +1,6 @@
 const COUNTER = "https://abacus.jasoncameron.dev";
 const NAMESPACE = "truefamilyphotography";
-const KEY = "visitors";
+const KEY = "site";
 
 function hasVisitorCookie(header: string | null) {
   return /(?:^|;\s*)tfp_vid=/.test(header || "");

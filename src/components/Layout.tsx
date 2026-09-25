@@ -125,8 +125,8 @@ export function Layout() {
 }
 
 const VISITOR_KEY = "tfp-visitor";
-const VISITOR_GET = "https://abacus.jasoncameron.dev/get/truefamilyphotography/visitors";
-const VISITOR_HIT = "https://abacus.jasoncameron.dev/hit/truefamilyphotography/visitors";
+const VISITOR_GET = "https://abacus.jasoncameron.dev/get/truefamilyphotography/site";
+const VISITOR_HIT = "https://abacus.jasoncameron.dev/hit/truefamilyphotography/site";
 let visitorRequestStarted = false;
 
 function VisitorCount() {
