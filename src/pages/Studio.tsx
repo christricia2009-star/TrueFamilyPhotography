@@ -26,15 +26,42 @@ export function Studio() {
   const bookings = authed ? listBookings() : [];
   const localAlerts = authed ? listNotifySignups() : [];
   const [remoteAlerts, setRemoteAlerts] = useState<NotifySignup[]>([]);
-  useEffect(() => {
-    if (!authed) return;
+  const [addChannel, setAddChannel] = useState<"text" | "email">("text");
+  const [addContact, setAddContact] = useState("");
+  const [addNote, setAddNote] = useState("");
+  function loadAlerts() {
     fetch("/api/notify", { headers: { "x-studio-pin": STUDIO_PIN } })
       .then((res) => (res.ok ? res.json() : []))
       .then((rows: NotifySignup[]) => {
         if (Array.isArray(rows)) setRemoteAlerts(rows);
       })
       .catch(() => {});
+  }
+  useEffect(() => {
+    if (!authed) return;
+    loadAlerts();
   }, [authed]);
+  async function addAlert(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setAddNote("");
+    const res = await fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-studio-pin": STUDIO_PIN },
+      body: JSON.stringify({ channel: addChannel, contact: addContact, page: "desk" }),
+    });
+    const data = (await res.json().catch(() => ({}))) as { ok?: boolean; reason?: string };
+    if (data.reason === "duplicate") {
+      setAddNote(addChannel === "text" ? "That number is already on the list." : "That email is already on the list.");
+      return;
+    }
+    if (!res.ok || !data.ok) {
+      setAddNote("Couldn't add that.");
+      return;
+    }
+    setAddContact("");
+    setAddNote("Added.");
+    loadAlerts();
+  }
   const alerts = [...remoteAlerts, ...localAlerts.filter((row) => !remoteAlerts.some((remote) => remote.contact === row.contact && remote.createdAt === row.createdAt))];
   const origin = typeof window === "undefined" ? "" : window.location.origin;
 
@@ -159,6 +186,23 @@ export function Studio() {
         )}
 
         <h2 style={{ margin: "48px 0 12px" }}>Photo alerts</h2>
+        <form onSubmit={addAlert} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+          <select value={addChannel} onChange={(e) => setAddChannel(e.target.value as "text" | "email")}>
+            <option value="text">Text</option>
+            <option value="email">Email</option>
+          </select>
+          <input
+            value={addContact}
+            onChange={(e) => setAddContact(e.target.value)}
+            placeholder={addChannel === "text" ? "Mobile number" : "Email"}
+            aria-label="Contact"
+            required
+          />
+          <button className="btn" type="submit">
+            Add
+          </button>
+          {addNote && <span className="note">{addNote}</span>}
+        </form>
         {alerts.length === 0 ? (
           <p className="note">No one has asked for a photo alert yet.</p>
         ) : (

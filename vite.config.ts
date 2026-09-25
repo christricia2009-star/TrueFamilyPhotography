@@ -94,6 +94,7 @@ function notifyDev(): Plugin {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   if (env.SIGNUP_STORE) process.env.SIGNUP_STORE = env.SIGNUP_STORE;
+  if (env.BLOB_READ_WRITE_TOKEN) process.env.BLOB_READ_WRITE_TOKEN = env.BLOB_READ_WRITE_TOKEN;
   return {
   plugins: [react(), visitorsDev(), notifyDev()],
   resolve: {
