@@ -63,21 +63,28 @@ export function NotifyPrompt() {
     setBusy(true);
     setError("");
     const contactValue = channel === "text" ? digits : value;
-    const res = await fetch("/api/notify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        channel,
-        contact: contactValue,
-        consent: channel === "text" ? SMS_CONSENT : "Email alerts for new events and ready galleries.",
-        page: pathname,
-      }),
-    });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
-    setBusy(false);
-    if (!res.ok || !data.ok) {
-      setError("We couldn't save that. Please try again.");
+    try {
+      const res = await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          channel,
+          contact: contactValue,
+          consent: channel === "text" ? SMS_CONSENT : "Email alerts for new events and ready galleries.",
+          page: pathname,
+        }),
+        signal: AbortSignal.timeout(8000),
+      });
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
+      if (!res.ok || !data.ok) {
+        setError("That didn't go through. Try once more.");
+        return;
+      }
+    } catch {
+      setError("That didn't go through. Try once more.");
       return;
+    } finally {
+      setBusy(false);
     }
     saveNotifySignup({
       channel,

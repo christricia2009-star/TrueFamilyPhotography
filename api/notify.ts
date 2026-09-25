@@ -33,49 +33,59 @@ function clean(fields: Signup): StoredSignup | null {
   };
 }
 
-async function mailStudio(entry: StoredSignup) {
-  await fetch(`https://formsubmit.co/ajax/${STUDIO_EMAIL}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      Referer: "https://www.truefamilyphotography.com/",
+function fetchWithin(url: string, init: RequestInit, ms: number) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { ...init, signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
+function mailStudio(entry: StoredSignup) {
+  return fetchWithin(
+    `https://formsubmit.co/ajax/${STUDIO_EMAIL}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Referer: "https://www.truefamilyphotography.com/",
+      },
+      body: JSON.stringify({
+        email: entry.channel === "email" ? entry.contact : STUDIO_EMAIL,
+        _replyto: entry.channel === "email" ? entry.contact : undefined,
+        _subject: "Photo alert signup",
+        _captcha: "false",
+        _template: "table",
+        channel: entry.channel,
+        contact: entry.contact,
+        page: entry.page,
+      }),
     },
-    body: JSON.stringify({
-      email: entry.channel === "email" ? entry.contact : STUDIO_EMAIL,
-      _replyto: entry.channel === "email" ? entry.contact : undefined,
-      _subject: "Photo alert signup",
-      _captcha: "false",
-      _template: "table",
-      channel: entry.channel,
-      contact: entry.contact,
-      page: entry.page,
-    }),
-  });
+    2500,
+  );
 }
 
 export async function deliverSignup(fields: Signup) {
   const entry = clean(fields);
   const url = storeUrl();
   if (!entry || !url) return { ok: false as const };
-  const saved = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify(entry),
-  });
+  const saved = await fetchWithin(
+    url,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(entry),
+    },
+    4000,
+  );
   if (!saved.ok) return { ok: false as const };
-  try {
-    await mailStudio(entry);
-  } catch {
-    /* the signup is already stored */
-  }
+  void mailStudio(entry).catch(() => {});
   return { ok: true as const };
 }
 
 export async function listSignups(): Promise<StoredSignup[]> {
   const url = storeUrl();
   if (!url) return [];
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetchWithin(url, { headers: { Accept: "application/json" } }, 4000);
   if (!res.ok) return [];
   const data = (await res.json()) as StoredSignup[];
   if (!Array.isArray(data)) return [];
