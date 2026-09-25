@@ -64,22 +64,43 @@ function mailStudio(entry: StoredSignup) {
   );
 }
 
+function sameContact(row: StoredSignup, entry: StoredSignup) {
+  if (entry.channel === "text") {
+    const a = row.contact.replace(/\D/g, "").slice(-10);
+    const b = entry.contact.replace(/\D/g, "").slice(-10);
+    return a.length === 10 && a === b;
+  }
+  return row.contact.trim().toLowerCase() === entry.contact.trim().toLowerCase();
+}
+
 export async function deliverSignup(fields: Signup) {
   const entry = clean(fields);
   const url = storeUrl();
-  if (!entry || !url) return { ok: false as const };
-  const saved = await fetchWithin(
-    url,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(entry),
-    },
-    4000,
-  );
-  if (!saved.ok) return { ok: false as const };
+  if (!entry || !url) return { ok: false as const, reason: "failed" as const };
+  try {
+    const existing = await listSignups();
+    if (existing.some((row) => sameContact(row, entry))) {
+      return { ok: true as const, reason: "duplicate" as const };
+    }
+  } catch {
+    /* a slow list should not block a new signup */
+  }
+  try {
+    const saved = await fetchWithin(
+      url,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(entry),
+      },
+      4000,
+    );
+    if (!saved.ok) return { ok: false as const, reason: "failed" as const };
+  } catch {
+    return { ok: false as const, reason: "failed" as const };
+  }
   void mailStudio(entry).catch(() => {});
-  return { ok: true as const };
+  return { ok: true as const, reason: "saved" as const };
 }
 
 export async function listSignups(): Promise<StoredSignup[]> {

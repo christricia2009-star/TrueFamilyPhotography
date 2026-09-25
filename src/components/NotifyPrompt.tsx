@@ -14,6 +14,7 @@ export function NotifyPrompt() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [doneMessage, setDoneMessage] = useState("You're on the list. We'll reach out when a new event is ready.");
 
   useEffect(() => {
     if (!open) return;
@@ -75,7 +76,19 @@ export function NotifyPrompt() {
         }),
         signal: AbortSignal.timeout(8000),
       });
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; reason?: string };
+      if (data.reason === "duplicate") {
+        setDoneMessage(
+          channel === "text" ? "That number is already on the list." : "That email is already on the list.",
+        );
+        setDone(true);
+        try {
+          localStorage.setItem(NOTIFY_SEEN_KEY, "1");
+        } catch {
+          /* still told them */
+        }
+        return;
+      }
       if (!res.ok || !data.ok) {
         setError("That didn't go through. Try once more.");
         return;
@@ -108,7 +121,7 @@ export function NotifyPrompt() {
         <h2 id="notify-title">Pictures go up after the game.</h2>
         {done ? (
           <>
-            <p>You’re on the list. We’ll reach out when a new event is ready.</p>
+            <p>{doneMessage}</p>
             <button type="button" className="btn" onClick={() => setOpen(false)}>
               Close
             </button>
