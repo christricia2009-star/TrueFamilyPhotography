@@ -632,6 +632,17 @@ main {
   margin-top: 72px;
 }
 
+.albums.archive {
+  grid-template-columns: 1fr 1fr;
+  column-gap: 36px;
+  row-gap: 56px;
+  align-items: start;
+}
+
+.albums.archive .album-cover {
+  max-width: none;
+}
+
 .album h3 {
   font-size: 2.2rem;
   margin-bottom: 16px;
@@ -1081,7 +1092,8 @@ textarea:focus {
   .footer-grid,
   .work-grid,
   .album-grid,
-  .gallery-row {
+  .gallery-row,
+  .albums.archive {
     grid-template-columns: 1fr;
   }
 

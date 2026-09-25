@@ -48,7 +48,7 @@ export function Home() {
           <p style={{ maxWidth: "46ch", color: "var(--ink-soft)", marginTop: -12 }}>
             A session is booked with the studio. The name on a frame is who held the camera that day.
           </p>
-          <div className="albums" style={{ marginTop: 36 }}>
+          <div className="albums archive" style={{ marginTop: 36 }}>
             {previousShoots.map((shoot) => {
               const cover = shoot.photos[0];
               return (
