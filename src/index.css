@@ -12,7 +12,7 @@
   --sans: "Outfit", system-ui, sans-serif;
   --script: "Great Vibes", cursive;
   --max: 1180px;
-  --banner-h: 72px;
+  --banner-h: 0px;
 }
 
 * {
@@ -149,53 +149,6 @@ h3,
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 8px;
-}
-
-.promo-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 41;
-  height: var(--banner-h);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 0 16px;
-  background: var(--ink);
-  color: var(--paper);
-  font-size: clamp(0.82rem, 1.8vw, 1.28rem);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-.promo-copy {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.promo-handle,
-.promo-arrow {
-  color: var(--gold);
-  letter-spacing: 0.08em;
-}
-
-.promo-arrow {
-  flex: none;
-  letter-spacing: 0;
-}
-
-.promo-banner:hover {
-  background: #2c241f;
-}
-
-.promo-banner:hover .promo-handle,
-.promo-banner:hover .promo-arrow {
-  color: #e6d0a4;
 }
 
 main {
@@ -976,6 +929,10 @@ textarea:focus {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
 }
 
 .studio-table {
@@ -1102,12 +1059,6 @@ textarea:focus {
     text-shadow: none;
   }
 
-  .promo-banner {
-    letter-spacing: 0.08em;
-    font-size: 0.72rem;
-    gap: 8px;
-  }
-
   .hero {
     height: 52vh;
   }
@@ -1169,13 +1120,6 @@ textarea:focus {
   .hero-copy {
     width: 100%;
     padding: 0 12px 56px;
-  }
-
-  @media (max-width: 380px) {
-    .promo-banner {
-      letter-spacing: 0.03em;
-      font-size: 0.6rem;
-    }
   }
 
   .section {
@@ -2079,7 +2023,6 @@ textarea:focus {
 
 @media print {
   .notify-modal,
-  .promo-banner,
   .site-header,
   .site-footer,
   .no-print,

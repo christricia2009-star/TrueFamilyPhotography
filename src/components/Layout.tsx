@@ -5,7 +5,6 @@ import {
   INSTAGRAM_URL,
   LIABILITY_NOTE,
   photographers,
-  FOOTBALL_EVENTS_URL,
   STUDIO_EMAIL,
   STUDIO_NAME,
 } from "../data/studio";
@@ -45,14 +44,6 @@ export function Layout() {
   return (
     <>
       <NotifyPrompt />
-      <a className="promo-banner" href={FOOTBALL_EVENTS_URL}>
-        <span className="promo-copy">
-          Football Events by <span className="promo-handle">@truefamilyphotography</span>
-        </span>
-        <span className="promo-arrow" aria-hidden="true">
-          →
-        </span>
-      </a>
       <header className={`site-header ${isHome ? "is-hero" : "is-inner"} ${solid ? "is-solid" : ""}`}>
         <Link to="/" className="wordmark" onClick={() => setOpen(false)}>
           <strong>True Family</strong>
@@ -124,9 +115,49 @@ export function Layout() {
             </div>
           </div>
         </div>
-        <div className="wrap legal">© {new Date().getFullYear()} True Family Photography · All sessions billed to the studio</div>
+        <div className="wrap legal">
+          <span>© {new Date().getFullYear()} True Family Photography · All sessions billed to the studio</span>
+          <VisitorCount />
+        </div>
       </footer>
     </>
+  );
+}
+
+const VISITOR_KEY = "tfp-visitor";
+let visitorRequestStarted = false;
+
+function VisitorCount() {
+  const [count, setCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (visitorRequestStarted) return;
+    visitorRequestStarted = true;
+    let seen = false;
+    try {
+      seen = localStorage.getItem(VISITOR_KEY) === "1";
+    } catch {
+      seen = false;
+    }
+    fetch(`/api/visitors?seen=${seen ? "1" : "0"}`, { credentials: "same-origin" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { count?: number } | null) => {
+        if (typeof data?.count === "number") setCount(data.count);
+        try {
+          localStorage.setItem(VISITOR_KEY, "1");
+        } catch {
+          /* private mode still has the cookie when the browser allows it */
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  if (count === null) return null;
+  const label = count === 1 ? "visitor" : "visitors";
+  return (
+    <span className="visitor-count">
+      {count.toLocaleString()} {label}
+    </span>
   );
 }
 

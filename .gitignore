@@ -4,3 +4,4 @@ dist
 .screens
 .env
 .env.local
+.data
