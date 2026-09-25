@@ -156,7 +156,7 @@ function VisitorCount() {
   const label = count === 1 ? "visitor" : "visitors";
   return (
     <span className="visitor-count">
-      {count.toLocaleString()} {label}
+      Visitors · {count.toLocaleString()} {label}
     </span>
   );
 }
