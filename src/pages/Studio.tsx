@@ -204,7 +204,7 @@ export function Studio() {
           {addNote && <span className="note">{addNote}</span>}
         </form>
         {alerts.length === 0 ? (
-          <p className="note">No one has asked for a photo alert yet.</p>
+          <p className="note">No one has asked for a photo alert yet. Send the text or email from Brevo when the photos are ready.</p>
         ) : (
           <table className="studio-table">
             <thead>
