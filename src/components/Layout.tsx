@@ -116,7 +116,10 @@ export function Layout() {
           </div>
         </div>
         <div className="wrap legal">
-          <span>© {new Date().getFullYear()} True Family Photography · All sessions billed to the studio</span>
+          <span>
+            © {new Date().getFullYear()} True Family Photography · All sessions billed to the studio ·{" "}
+            <Link to="/privacy">Privacy</Link> · <Link to="/terms">Terms</Link>
+          </span>
           <VisitorCount />
         </div>
       </footer>

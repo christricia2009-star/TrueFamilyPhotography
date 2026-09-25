@@ -9,6 +9,8 @@ import { Galleries } from "./pages/Galleries";
 import { Gallery } from "./pages/Gallery";
 import { Shop } from "./pages/Shop";
 import { Studio } from "./pages/Studio";
+import { Privacy } from "./pages/Privacy";
+import { Terms } from "./pages/Terms";
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/galleries/:id" element={<Gallery />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/studio" element={<Studio />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

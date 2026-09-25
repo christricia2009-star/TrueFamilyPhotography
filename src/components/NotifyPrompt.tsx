@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { NOTIFY_SEEN_KEY, saveNotifySignup } from "../lib/storage";
 
 const SMS_CONSENT =
@@ -170,7 +170,9 @@ export function NotifyPrompt() {
             {channel === "text" ? (
               <label className="agree">
                 <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-                <span>{SMS_CONSENT}</span>
+                <span>
+                  {SMS_CONSENT} See our <Link to="/terms">terms</Link> and <Link to="/privacy">privacy</Link> pages.
+                </span>
               </label>
             ) : (
               <p className="note">We’ll email you when a new event or gallery is ready.</p>

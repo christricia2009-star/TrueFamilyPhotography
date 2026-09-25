@@ -934,6 +934,44 @@ textarea:focus {
   opacity: 0.55;
 }
 
+.legal-page h2 {
+  margin-top: 36px;
+  font-size: 1.8rem;
+}
+
+.legal-page p {
+  max-width: 68ch;
+  margin-top: 14px;
+}
+
+.legal-page a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-facts {
+  margin-top: 22px;
+  max-width: 68ch;
+  display: grid;
+  gap: 16px;
+}
+
+.legal-facts div {
+  display: grid;
+  gap: 4px;
+}
+
+.legal-facts dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+}
+
+.legal-facts dd {
+  margin: 0;
+}
+
 .legal {
   margin-top: 36px;
   font-size: 0.72rem;
