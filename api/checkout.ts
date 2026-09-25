@@ -4,8 +4,7 @@ type Body = {
   success: string;
 };
 
-export default async function handler(req: Request) {
-  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+export async function POST(req: Request) {
   const secret = process.env.STRIPE_SECRET_KEY;
   if (!secret) {
     return Response.json({ error: "Stripe is not configured. Set STRIPE_SECRET_KEY." }, { status: 501 });

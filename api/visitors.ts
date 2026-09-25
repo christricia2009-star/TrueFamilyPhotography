@@ -6,7 +6,7 @@ function hasVisitorCookie(header: string | null) {
   return /(?:^|;\s*)tfp_vid=/.test(header || "");
 }
 
-export default async function handler(req: Request) {
+export async function GET(req: Request) {
   try {
     if (req.method !== "GET") return new Response("Method not allowed", { status: 405 });
     const url = new URL(req.url, "https://www.truefamilyphotography.com");

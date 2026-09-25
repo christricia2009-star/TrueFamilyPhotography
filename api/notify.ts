@@ -110,15 +110,19 @@ export async function listSignups(): Promise<StoredSignup[]> {
   return rows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-export default async function handler(req: Request) {
+export async function GET(req: Request) {
   try {
-    if (req.method === "GET") {
-      if (req.headers.get("x-studio-pin") !== STUDIO_PIN) {
-        return Response.json({ error: "unauthorized" }, { status: 401 });
-      }
-      return Response.json(await listSignups(), { headers: { "Cache-Control": "no-store" } });
+    if (req.headers.get("x-studio-pin") !== STUDIO_PIN) {
+      return Response.json({ error: "unauthorized" }, { status: 401 });
     }
-    if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+    return Response.json(await listSignups(), { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return Response.json({ error: "unavailable" }, { status: 502 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
     const result = await deliverSignup((await req.json()) as Signup);
     return Response.json(result, { status: result.ok ? 200 : 502 });
   } catch {
