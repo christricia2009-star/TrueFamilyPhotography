@@ -157,11 +157,7 @@ function VisitorCount() {
 
   if (count === null) return null;
   const label = count === 1 ? "visitor" : "visitors";
-  return (
-    <span className="visitor-count">
-      Visitors · {count.toLocaleString()} {label}
-    </span>
-  );
+  return <span className="visitor-count">{count.toLocaleString()} {label}</span>;
 }
 
 function SocialLinks() {
