@@ -125,6 +125,8 @@ export function Layout() {
 }
 
 const VISITOR_KEY = "tfp-visitor";
+const VISITOR_GET = "https://abacus.jasoncameron.dev/get/truefamilyphotography/visitors";
+const VISITOR_HIT = "https://abacus.jasoncameron.dev/hit/truefamilyphotography/visitors";
 let visitorRequestStarted = false;
 
 function VisitorCount() {
@@ -139,14 +141,15 @@ function VisitorCount() {
     } catch {
       seen = false;
     }
-    fetch(`/api/visitors?seen=${seen ? "1" : "0"}`, { credentials: "same-origin" })
+    fetch(seen ? VISITOR_GET : VISITOR_HIT)
       .then((res) => (res.ok ? res.json() : null))
-      .then((data: { count?: number } | null) => {
-        if (typeof data?.count === "number") setCount(data.count);
+      .then((data: { value?: number } | null) => {
+        if (typeof data?.value !== "number") return;
+        setCount(data.value);
         try {
           localStorage.setItem(VISITOR_KEY, "1");
         } catch {
-          /* private mode still has the cookie when the browser allows it */
+          /* a cleared browser is counted again, which is the limit of this tally */
         }
       })
       .catch(() => {});
