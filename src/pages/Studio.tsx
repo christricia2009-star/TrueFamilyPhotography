@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { QrCard } from "../components/QrCard";
 import { clientGalleries, getPhotographer, photographers, STUDIO_PIN, watermarkFor } from "../data/studio";
 import { addLibraryPhoto, listLibrary, removeLibraryPhoto } from "../lib/library";
@@ -12,6 +12,7 @@ import {
   listHeldDates,
   listNotifySignups,
   listOrders,
+  type NotifySignup,
   listPolaroids,
   savePolaroid,
   setStudioAuth,
@@ -23,7 +24,18 @@ export function Studio() {
   const [printId, setPrintId] = useState<string | null>(null);
   const [, setTick] = useState(0);
   const bookings = authed ? listBookings() : [];
-  const alerts = authed ? listNotifySignups() : [];
+  const localAlerts = authed ? listNotifySignups() : [];
+  const [remoteAlerts, setRemoteAlerts] = useState<NotifySignup[]>([]);
+  useEffect(() => {
+    if (!authed) return;
+    fetch("/api/notify", { headers: { "x-studio-pin": STUDIO_PIN } })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rows: NotifySignup[]) => {
+        if (Array.isArray(rows)) setRemoteAlerts(rows);
+      })
+      .catch(() => {});
+  }, [authed]);
+  const alerts = [...remoteAlerts, ...localAlerts.filter((row) => !remoteAlerts.some((remote) => remote.contact === row.contact && remote.createdAt === row.createdAt))];
   const origin = typeof window === "undefined" ? "" : window.location.origin;
 
   const cards = useMemo(
@@ -148,9 +160,7 @@ export function Studio() {
 
         <h2 style={{ margin: "48px 0 12px" }}>Photo alerts</h2>
         {alerts.length === 0 ? (
-          <p className="note">
-            First-visit signups email the studio. Ones sent from this browser are listed here.
-          </p>
+          <p className="note">No one has asked for a photo alert yet.</p>
         ) : (
           <table className="studio-table">
             <thead>

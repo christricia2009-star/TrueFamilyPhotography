@@ -1,4 +1,5 @@
-import { STUDIO_EMAIL } from "../src/data/studio";
+const STUDIO_EMAIL = "truefamilyphotography@gmail.com";
+const STUDIO_PIN = "8288824";
 
 type Signup = {
   channel?: string;
@@ -7,10 +8,33 @@ type Signup = {
   page?: string;
 };
 
-export async function deliverSignup(fields: Signup) {
+type StoredSignup = {
+  _id?: string;
+  channel: "email" | "text";
+  contact: string;
+  page: string;
+  createdAt: string;
+};
+
+function storeUrl() {
+  return process.env.SIGNUP_STORE || "";
+}
+
+function clean(fields: Signup): StoredSignup | null {
   const channel = fields.channel === "text" ? "text" : "email";
   const contact = (fields.contact || "").trim();
-  const res = await fetch(`https://formsubmit.co/ajax/${STUDIO_EMAIL}`, {
+  if (channel === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) return null;
+  if (channel === "text" && contact.replace(/\D/g, "").length < 10) return null;
+  return {
+    channel,
+    contact: channel === "text" ? contact.replace(/\D/g, "") : contact,
+    page: (fields.page || "").slice(0, 200),
+    createdAt: new Date().toISOString(),
+  };
+}
+
+async function mailStudio(entry: StoredSignup) {
+  await fetch(`https://formsubmit.co/ajax/${STUDIO_EMAIL}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -18,24 +42,63 @@ export async function deliverSignup(fields: Signup) {
       Referer: "https://www.truefamilyphotography.com/",
     },
     body: JSON.stringify({
-      email: channel === "email" ? contact : STUDIO_EMAIL,
-      _replyto: channel === "email" ? contact : undefined,
+      email: entry.channel === "email" ? entry.contact : STUDIO_EMAIL,
+      _replyto: entry.channel === "email" ? entry.contact : undefined,
       _subject: "Photo alert signup",
       _captcha: "false",
       _template: "table",
-      channel,
-      contact,
-      consent: fields.consent || "",
-      page: fields.page || "",
+      channel: entry.channel,
+      contact: entry.contact,
+      page: entry.page,
     }),
   });
-  const data = (await res.json().catch(() => ({}))) as { success?: string; message?: string };
-  return { ok: res.ok && String(data.success) === "true", message: data.message || "" };
+}
+
+export async function deliverSignup(fields: Signup) {
+  const entry = clean(fields);
+  const url = storeUrl();
+  if (!entry || !url) return { ok: false as const };
+  const saved = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(entry),
+  });
+  if (!saved.ok) return { ok: false as const };
+  try {
+    await mailStudio(entry);
+  } catch {
+    /* the signup is already stored */
+  }
+  return { ok: true as const };
+}
+
+export async function listSignups(): Promise<StoredSignup[]> {
+  const url = storeUrl();
+  if (!url) return [];
+  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!res.ok) return [];
+  const data = (await res.json()) as StoredSignup[];
+  if (!Array.isArray(data)) return [];
+  return data
+    .map((row) => ({
+      id: row._id || row.createdAt,
+      channel: row.channel,
+      contact: row.contact,
+      page: row.page,
+      createdAt: row.createdAt,
+    }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export default async function handler(req: Request) {
-  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
   try {
+    if (req.method === "GET") {
+      if (req.headers.get("x-studio-pin") !== STUDIO_PIN) {
+        return Response.json({ error: "unauthorized" }, { status: 401 });
+      }
+      return Response.json(await listSignups(), { headers: { "Cache-Control": "no-store" } });
+    }
+    if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
     const body = (await req.json()) as Signup;
     const result = await deliverSignup(body);
     return Response.json(result, { status: result.ok ? 200 : 502 });

@@ -2,7 +2,8 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
-import { deliverSignup } from "./api/notify";
+import { loadEnv } from "vite";
+import { deliverSignup, listSignups } from "./api/notify";
 
 function visitorsDev(): Plugin {
   const file = path.resolve(__dirname, ".data/visitors.json");
@@ -46,6 +47,25 @@ function notifyDev(): Plugin {
     name: "notify-dev",
     configureServer(server) {
       server.middlewares.use("/api/notify", (req, res) => {
+        if (req.method === "GET") {
+          if (req.headers["x-studio-pin"] !== "8288824") {
+            res.statusCode = 401;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "unauthorized" }));
+            return;
+          }
+          listSignups()
+            .then((rows) => {
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify(rows));
+            })
+            .catch(() => {
+              res.statusCode = 502;
+              res.end(JSON.stringify([]));
+            });
+          return;
+        }
         if (req.method !== "POST") {
           res.statusCode = 405;
           res.end("Method not allowed");
@@ -71,7 +91,10 @@ function notifyDev(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  if (env.SIGNUP_STORE) process.env.SIGNUP_STORE = env.SIGNUP_STORE;
+  return {
   plugins: [react(), visitorsDev(), notifyDev()],
   resolve: {
     alias: {
@@ -82,4 +105,4 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
-});
+};});
