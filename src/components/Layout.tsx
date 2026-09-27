@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   FACEBOOK_URL,
+  FOOTBALL_EVENTS_URL,
   INSTAGRAM_URL,
   LIABILITY_NOTE,
   photographers,
@@ -44,6 +45,14 @@ export function Layout() {
   return (
     <>
       <NotifyPrompt />
+      <a className="promo-banner" href={FOOTBALL_EVENTS_URL}>
+        <span className="promo-copy">
+          Football Events by <span className="promo-handle">@truefamilyphotography</span>
+        </span>
+        <span className="promo-arrow" aria-hidden="true">
+          →
+        </span>
+      </a>
       <header className={`site-header ${isHome ? "is-hero" : "is-inner"} ${solid ? "is-solid" : ""}`}>
         <Link to="/" className="wordmark" onClick={() => setOpen(false)}>
           <strong>True Family</strong>
